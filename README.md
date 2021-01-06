@@ -1,4 +1,4 @@
-Product Manager
+Knowledge Store
 -----------
 :open_file_folder:  Web application "Knowledge Store" is all about saving and structuring all your valuable information all over the internet.
 
