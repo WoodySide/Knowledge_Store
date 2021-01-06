@@ -1,10 +1,10 @@
 package com.webApp.controllers;
 
+import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Link;
 import com.webApp.service.CategoryService;
 import com.webApp.service.LinkService;
-import com.webApp.service.TitleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,7 +23,7 @@ public class LinkController {
 
 
     private final CategoryService categoryService;
-    private final  LinkService linkService;
+    private final LinkService linkService;
 
     @Autowired
     public LinkController(CategoryService categoryService,
@@ -43,7 +43,8 @@ public class LinkController {
 
         if(!optionalLink.isPresent()) {
             log.error("Link Id: " + linkId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no link with ID: " +
+                    linkId + " in database");
         }
 
         return ResponseEntity.ok(optionalLink.get());
@@ -55,7 +56,8 @@ public class LinkController {
 
         if(!optionalCategory.isPresent()) {
             log.error("Category: " + optionalCategory + " doesnt' exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no category: " +
+                    optionalCategory + " in database");
         }
 
         link.setCategory(optionalCategory.get());
@@ -74,14 +76,16 @@ public class LinkController {
 
         if(!optionalCategory.isPresent()) {
             log.error("Category  " + optionalCategory + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no category: " +
+                    optionalCategory + " in database");
         }
 
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {
             log.error("Link Id " + linkId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no link with ID: " +
+                    linkId + " to be updated in database");
         }
 
         link.setCategory(optionalCategory.get());
@@ -97,7 +101,8 @@ public class LinkController {
 
         if(!optionalLink.isPresent()) {
             log.error("Link Id " + linkId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no link with ID: " +
+                    linkId + " to be deleted in database");
         }
 
         linkService.deleteLinkById(optionalLink.get().getId());

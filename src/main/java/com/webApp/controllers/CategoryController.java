@@ -1,5 +1,6 @@
 package com.webApp.controllers;
 
+import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Title;
 import com.webApp.service.CategoryService;
@@ -40,7 +41,8 @@ public class CategoryController {
         Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
         if(!optionalCategory.isPresent()) {
             log.error("Category with ID: " + categoryId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no category with ID: " +
+                    categoryId + " in database");
         }
 
         return ResponseEntity.ok(optionalCategory.get());
@@ -52,7 +54,8 @@ public class CategoryController {
 
         if(!optionalTitle.isPresent()) {
             log.error("Title: " + optionalTitle + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no title: " +
+                    optionalTitle + " in database");
         }
 
         category.setTitle(optionalTitle.get());
@@ -71,14 +74,16 @@ public class CategoryController {
 
         if(!optionalTitle.isPresent()) {
             log.error("Title: " + optionalTitle + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no title: " +
+                    optionalTitle + " in database");
         }
 
         Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
 
         if(!optionalCategory.isPresent()) {
             log.error("Category with ID: " + categoryId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no category with ID: " +
+                    categoryId + " to be updated in database");
         }
 
         category.setTitle(optionalTitle.get());
@@ -94,7 +99,8 @@ public class CategoryController {
 
         if(!optionalCategory.isPresent()) {
             log.error("Category with ID: " + categoryId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no category with ID: " +
+                    categoryId + " to be deleted in database");
         }
 
         categoryService.deleteCategoryById(optionalCategory.get().getId());

@@ -1,10 +1,13 @@
 package com.webApp.controllers;
 
+import com.webApp.exception_handling.EntityIncorrectData;
+import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;
 import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +42,8 @@ public class TitleController {
 
         if(!optionalTitle.isPresent()) {
             log.error("Title ID: " + titleId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no title with ID: " +
+                    titleId + " in database");
         }
 
         return ResponseEntity.ok(optionalTitle.get());
@@ -61,7 +65,8 @@ public class TitleController {
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
         if(!optionalTitle.isPresent()) {
             log.error("Title Id: " + titleId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no title with ID: " +
+                    titleId + " to be deleted in database");
         }
 
        titleService.deleteTitleById(optionalTitle.get().getId());
@@ -77,7 +82,8 @@ public class TitleController {
 
         if(!optionalTitle.isPresent()) {
             log.error("Title with ID: " + titleId + " doesn't exist");
-            return ResponseEntity.unprocessableEntity().build();
+            throw new NoSuchEntityException("There is no title ID: " +
+                    titleId + " to be updated in database");
         }
 
         title.setId(optionalTitle.get().getId());
@@ -85,4 +91,5 @@ public class TitleController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
+
 }
