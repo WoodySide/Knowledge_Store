@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS knowledge_data.categories (
 
 CREATE TABLE IF NOT EXISTS knowledge_data.links (
     id SERIAL NOT NULL,
-    linkName TEXT NOT NULL,
+    link_name TEXT NOT NULL,
     description TEXT,
     date DATE NOT NULL,
     category_id INT,

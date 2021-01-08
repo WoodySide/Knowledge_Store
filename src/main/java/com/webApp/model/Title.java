@@ -1,9 +1,6 @@
 package com.webApp.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -12,9 +9,11 @@ import java.util.Set;
 @Entity(name = "Title")
 @Table(name = "titles", schema = "knowledge_data", catalog = "knowledge_store")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
+@Builder
 public class Title {
 
     @Id
@@ -30,8 +29,12 @@ public class Title {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",
              fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Set<Category> categories;
 
+    public Title(String name) {
+        this.name = name;
+    }
 
     public void setCategories(Set<Category> categories) {
         this.categories = categories;

@@ -1,10 +1,7 @@
 package com.webApp.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -15,8 +12,10 @@ import java.util.Date;
 @Entity(name = "Link")
 @Table(name = "links", schema = "knowledge_data")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @ToString
 public class Link {
 
@@ -43,4 +42,8 @@ public class Link {
     @JoinColumn(name = "category_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Category category;
+
+    public Link(String linkName) {
+        this.linkName = linkName;
+    }
 }

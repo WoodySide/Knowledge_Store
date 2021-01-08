@@ -11,8 +11,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
+@Builder
 public class Category {
 
     @Id
@@ -34,7 +35,9 @@ public class Category {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category",
              fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Set<Link> links;
+
 
     public void setLinks(Set<Link> links) {
         this.links = links;
