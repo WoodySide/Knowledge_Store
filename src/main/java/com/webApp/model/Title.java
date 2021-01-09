@@ -36,6 +36,11 @@ public class Title {
         this.name = name;
     }
 
+    public Title(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
 

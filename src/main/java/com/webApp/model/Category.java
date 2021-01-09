@@ -38,6 +38,10 @@ public class Category {
     @ToString.Exclude
     private Set<Link> links;
 
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public void setLinks(Set<Link> links) {
         this.links = links;
