@@ -43,6 +43,11 @@ public class Link {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Category category;
 
+    public Link(Long id, String linkName) {
+        this.id = id;
+        this.linkName = linkName;
+    }
+
     public Link(String linkName) {
         this.linkName = linkName;
     }
