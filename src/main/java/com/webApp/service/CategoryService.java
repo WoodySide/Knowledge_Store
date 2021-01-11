@@ -20,7 +20,6 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-
     public List<Category> findAllCategories() {
         log.info("In CategoryService find all Categories");
         return categoryRepository.findAll();
@@ -40,6 +39,4 @@ public class CategoryService {
         log.info("In CategoryService delete Category by id {}", id);
         categoryRepository.deleteById(id);
     }
-
-
 }
