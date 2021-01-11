@@ -5,8 +5,10 @@ import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;
 import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +24,12 @@ import java.util.Optional;
 @RequestMapping("/api/v1/titles/")
 public class TitleController {
 
+    @Qualifier(value = "titleRepository")
     private final TitleService titleService;
-    private final CategoryService categoryService;
 
     @Autowired
-    public TitleController(TitleService titleService, CategoryService categoryService) {
+    public TitleController(TitleService titleService) {
         this.titleService = titleService;
-        this.categoryService = categoryService;
     }
 
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
