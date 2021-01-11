@@ -34,7 +34,7 @@ public class TitleControllerTest {
 
 
     @Test
-    public void givenId_whenGetExistingPerson_thenStatus200andPersonReturned() throws Exception {
+    public void givenId_whenGetExistingTitle_thenStatus200andTitleReturned() throws Exception {
 
         Title title = Title.builder()
                 .id(15L)
@@ -50,7 +50,7 @@ public class TitleControllerTest {
     }
 
     @Test
-    public void givenId_whenGetNotExistingPerson_thenStatus404anExceptionThrown() throws Exception {
+    public void givenId_whenGetNotExistingTitle_thenStatus404anExceptionThrown() throws Exception {
 
 
         Mockito.when(titleService.findTitleById(Mockito.any())).
