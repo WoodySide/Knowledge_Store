@@ -7,6 +7,7 @@ import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +22,11 @@ import java.util.Optional;
 @RequestMapping("/api/v1/categories/")
 public class CategoryController {
 
+    @Qualifier(value = "titleRepository")
     private final TitleService titleService;
 
+
+    @Qualifier(value = "categoryRepository")
     private final CategoryService categoryService;
 
     @Autowired
