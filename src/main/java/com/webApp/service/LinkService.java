@@ -21,12 +21,12 @@ public class LinkService {
     }
 
     public List<Link> findAllLinks() {
-        log.info("In LinkService findAll Links");
+        log.info("In LinkService find all links");
         return linkRepository.findAll();
     }
 
     public Optional<Link> findLinkById(Long id) {
-        log.info("In LinkService find Link by id {}", id);
+        log.info("In LinkService find link by id {}", id);
         return linkRepository.findById(id);
     }
 

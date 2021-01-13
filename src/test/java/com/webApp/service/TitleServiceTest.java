@@ -2,6 +2,7 @@ package com.webApp.service;
 
 import com.webApp.model.Title;
 import com.webApp.repository.TitleRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -61,7 +62,6 @@ public class TitleServiceTest {
         titleService.saveTitle(titleToBeSaved);
 
         verify(titleRepository, times(1)).save(titleToBeSaved);
-
     }
 
     @Test

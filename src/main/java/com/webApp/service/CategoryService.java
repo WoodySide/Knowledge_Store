@@ -21,12 +21,12 @@ public class CategoryService {
     }
 
     public List<Category> findAllCategories() {
-        log.info("In CategoryService find all Categories");
+        log.info("In TitleService find all categories");
         return categoryRepository.findAll();
     }
 
     public Optional<Category> findCategoryById(Long id) {
-        log.info("In CategoryService find Category by id {}", id);
+        log.info("In TitleService find category by id {} ", id);
         return categoryRepository.findById(id);
     }
 
