@@ -26,17 +26,17 @@ public class LinkService {
     }
 
     public Optional<Link> findLinkById(Long id) {
-        log.info("In LinkService find link by id {}", id);
+        log.info("Found by id {}", id);
         return linkRepository.findById(id);
     }
 
     public Link saveLink(Link link) {
-        log.info("In LinkService save Link {}", link);
+        log.info("Save {}", link);
         return linkRepository.save(link);
     }
 
     public void deleteLinkById(Long id) {
-        log.info("In LinkService delete Link by id {}", id);
+        log.info("Delete by id {}", id);
         linkRepository.deleteById(id);
     }
 }

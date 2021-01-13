@@ -28,17 +28,17 @@ public class TitleService {
     }
 
     public Optional<Title> findTitleById(Long titleId) {
-        log.info("Found id {}", titleId);
+        log.info("Found by id {}", titleId);
         return titleRepository.findById(titleId);
     }
 
     public Title saveTitle(Title title) {
-        log.info("In TitleService save title {}", title);
+        log.info("Save {}", title);
         return titleRepository.save(title);
     }
 
     public void deleteTitleById(Long titleId) {
-        log.info("In TitleService delete title by id {}", titleId);
+        log.info("Delete by id {}", titleId);
         titleRepository.deleteById(titleId);
     }
 }
