@@ -37,8 +37,8 @@ public class LinkController {
         return ResponseEntity.ok(linkService.findAllLinks());
     }
 
-    @GetMapping(path = "/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> getLinkById(@PathVariable(name = "linkId") Long linkId) {
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Link> getLinkById(@PathVariable(name = "id") Long linkId) {
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {
@@ -64,14 +64,14 @@ public class LinkController {
 
         Link savedLink = linkService.saveLink(link);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{linkId}")
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(savedLink).toUri();
 
         return ResponseEntity.created(location).body(savedLink);
     }
 
-    @PutMapping(path = "/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> updateLinkById(@RequestBody @Valid Link link, @PathVariable(name = "linkId") Long linkId) {
+    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Link> updateLinkById(@RequestBody @Valid Link link, @PathVariable(name = "id") Long linkId) {
         Optional<Category> optionalCategory = categoryService.findCategoryById(link.getCategory().getId());
 
         if(!optionalCategory.isPresent()) {
@@ -95,8 +95,8 @@ public class LinkController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/{linkId}")
-    public ResponseEntity<Link> deleteLinkById(@PathVariable(name = "linkId") Long linkId) {
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Link> deleteLinkById(@PathVariable(name = "id") Long linkId) {
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {

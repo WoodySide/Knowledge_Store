@@ -40,8 +40,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findAllCategories());
     }
 
-    @GetMapping(path = "/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> getCategoryById(@PathVariable(name = "categoryId") Long categoryId) {
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Category> getCategoryById(@PathVariable(name = "id") Long categoryId) {
         Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
         if(!optionalCategory.isPresent()) {
             log.error("Category with ID: " + categoryId + " doesn't exist");
@@ -64,15 +64,15 @@ public class CategoryController {
 
         category.setTitle(optionalTitle.get());
         Category savedCategory = categoryService.saveCategory(category);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{categoryId}")
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(savedCategory.getId()).toUri();
 
         return ResponseEntity.created(location).body(savedCategory);
     }
 
-    @PutMapping(path = "/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> updateCategoryById(@RequestBody @Valid Category category,
-                                                       @PathVariable(name = "categoryId") Long categoryId) {
+                                                       @PathVariable(name = "id") Long categoryId) {
 
         Optional<Title> optionalTitle = titleService.findTitleById(category.getTitle().getId());
 
@@ -97,8 +97,8 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping(path = "/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> deleteCategoryById(@PathVariable("categoryId") Long categoryId) {
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Category> deleteCategoryById(@PathVariable("id") Long categoryId) {
         Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
 
         if(!optionalCategory.isPresent()) {

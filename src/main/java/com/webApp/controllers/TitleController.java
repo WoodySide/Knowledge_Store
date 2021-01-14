@@ -37,8 +37,8 @@ public class TitleController {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
 
-    @GetMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> getTitleById(@PathVariable(name = "titleId") Long titleId) {
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Title> getTitleById(@PathVariable(name = "id") Long titleId) {
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
 
         if(!optionalTitle.isPresent()) {
@@ -54,14 +54,14 @@ public class TitleController {
     public ResponseEntity<Title> createTitle(@Valid @RequestBody Title title) {
         Title savedTitle = titleService.saveTitle(title);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{titleId}")
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(savedTitle.getId()).toUri();
 
         return ResponseEntity.created(location).body(savedTitle);
     }
 
-    @DeleteMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> deleteTitleById(@PathVariable(name = "titleId") Long titleId) {
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Title> deleteTitleById(@PathVariable(name = "id") Long titleId) {
 
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
         if(!optionalTitle.isPresent()) {
@@ -75,8 +75,8 @@ public class TitleController {
        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> updateTitleById(@PathVariable(name = "titleId") Long titleId,
+    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Title> updateTitleById(@PathVariable(name = "id") Long titleId,
                                                  @Valid @RequestBody Title title) {
 
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
