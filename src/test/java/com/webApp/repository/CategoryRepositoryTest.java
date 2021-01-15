@@ -1,7 +1,6 @@
 package com.webApp.repository;
 
 import com.webApp.model.Category;
-import com.webApp.model.Title;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,7 @@ public class CategoryRepositoryTest {
         List<Category> categoryList = categoryRepository.findAll();
 
         //then
-        assertThat(categoryList).hasSize(6);
+        assertThat(categoryList).hasSize(9);
     }
 
 }

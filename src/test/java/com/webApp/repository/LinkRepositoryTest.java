@@ -48,7 +48,7 @@ public class LinkRepositoryTest {
         List<Link> linkList = linkRepository.findAll();
 
         //then
-        assertThat(linkList).hasSize(3);
+        assertThat(linkList).hasSize(10);
     }
 }
 

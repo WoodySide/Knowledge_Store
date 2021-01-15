@@ -1,6 +1,9 @@
 package com.webApp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -14,17 +17,20 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor
 @Builder
+@ApiModel(description = "All details about the Category")
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @ApiModelProperty(notes = "The database generated category ID")
     private Long id;
 
     @Column(name = "name",nullable = false)
     @NotBlank(message = "Category name should not be empty")
     @Size(min = 2, max = 50, message = "Category name should be greater than 2 " +
             "and less than 50 symbols")
+    @ApiModelProperty(notes = "Category name")
     private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
@@ -36,6 +42,7 @@ public class Category {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category",
              fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonIgnore
     private Set<Link> links;
 
     public Category(Long id, String name) {
@@ -43,11 +50,4 @@ public class Category {
         this.name = name;
     }
 
-    public void setLinks(Set<Link> links) {
-        this.links = links;
-        
-        for(Link link: links) {
-            link.setCategory(this);
-        }
-    }
 }
