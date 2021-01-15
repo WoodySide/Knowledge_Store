@@ -5,6 +5,10 @@ import com.webApp.model.Category;
 import com.webApp.model.Link;
 import com.webApp.service.CategoryService;
 import com.webApp.service.LinkService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,8 +25,8 @@ import java.util.Optional;
 @RequestMapping("/api/v1/links/")
 public class LinkController {
 
-
     private final CategoryService categoryService;
+
     private final LinkService linkService;
 
     @Autowired
@@ -32,13 +36,22 @@ public class LinkController {
         this.linkService = linkService;
     }
 
+    @ApiOperation(value = "View a list of available links", response = List.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved list of links"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
+    })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Link>> getAllLinks() {
         return ResponseEntity.ok(linkService.findAllLinks());
     }
 
+    @ApiOperation(value = "Get a link by ID")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> getLinkById(@PathVariable(name = "id") Long linkId) {
+    public ResponseEntity<Link> getLinkById(@ApiParam(value = "Link ID from which object category will be retrieved", required = true)
+                                            @PathVariable(name = "id") Long linkId) {
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {
@@ -50,8 +63,10 @@ public class LinkController {
         return ResponseEntity.ok(optionalLink.get());
     }
 
+    @ApiOperation(value = "Create a new link")
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> createLink(@RequestBody @Valid Link link) {
+    public ResponseEntity<Link> createLink(@ApiParam(value = "Link object store in database", required = true)
+                                           @RequestBody @Valid Link link) {
         Optional<Category> optionalCategory = categoryService.findCategoryById(link.getCategory().getId());
 
         if(!optionalCategory.isPresent()) {
@@ -70,8 +85,12 @@ public class LinkController {
         return ResponseEntity.created(location).body(savedLink);
     }
 
+    @ApiOperation(value = "Update a link by ID")
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> updateLinkById(@RequestBody @Valid Link link, @PathVariable(name = "id") Long linkId) {
+    public ResponseEntity<Link> updateLinkById(@ApiParam(value = "Update link object", required = true)
+                                               @RequestBody @Valid Link link,
+                                               @ApiParam(value = "Link ID to update title object", required = true)
+                                               @PathVariable(name = "id") Long linkId) {
         Optional<Category> optionalCategory = categoryService.findCategoryById(link.getCategory().getId());
 
         if(!optionalCategory.isPresent()) {
@@ -95,8 +114,10 @@ public class LinkController {
         return ResponseEntity.noContent().build();
     }
 
+    @ApiOperation(value = "Delete a link by ID")
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Link> deleteLinkById(@PathVariable(name = "id") Long linkId) {
+    public ResponseEntity<Link> deleteLinkById(@ApiParam(value = "Link ID from which title object will be deleted from database", required = true)
+                                               @PathVariable(name = "id") Long linkId) {
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {
@@ -107,6 +128,6 @@ public class LinkController {
 
         linkService.deleteLinkById(optionalLink.get().getId());
 
-        return ResponseEntity.unprocessableEntity().build();
+        return ResponseEntity.noContent().build();
     }
 }
