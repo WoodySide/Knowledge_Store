@@ -37,7 +37,6 @@ public class Title {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",
              fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JsonIgnore
     private Set<Category> categories;
 
     public Title(String name) {

@@ -42,7 +42,6 @@ public class Category {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category",
              fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JsonIgnore
     private Set<Link> links;
 
     public Category(Long id, String name) {
