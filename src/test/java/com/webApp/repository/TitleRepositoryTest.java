@@ -30,7 +30,7 @@ public class TitleRepositoryTest {
 
         //given
         Title title =  Title.builder()
-                .name("Biology")
+                .name("MIT")
                 .build();
         testEntityManager.persist(title);
         testEntityManager.flush();

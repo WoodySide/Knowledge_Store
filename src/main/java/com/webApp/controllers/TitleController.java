@@ -1,15 +1,11 @@
 package com.webApp.controllers;
 
-import com.webApp.exception_handling.EntityIncorrectData;
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;
-import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
-import lombok.NoArgsConstructor;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +20,6 @@ import java.util.Optional;
 @RequestMapping("/api/v1/titles/")
 public class TitleController {
 
-    @Qualifier(value = "titleRepository")
     private final TitleService titleService;
 
     @Autowired
@@ -32,13 +27,24 @@ public class TitleController {
         this.titleService = titleService;
     }
 
+
+    @ApiOperation(value = "View a list of available titles", response = List.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved list of titles"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
+    })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Title>> getAllTitles() {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
 
+
+    @ApiOperation(value = "Get a title by ID ")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> getTitleById(@PathVariable(name = "id") Long titleId) {
+    public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
+                                                  @PathVariable(name = "id") Long titleId) {
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
 
         if(!optionalTitle.isPresent()) {
@@ -50,8 +56,11 @@ public class TitleController {
         return ResponseEntity.ok(optionalTitle.get());
     }
 
+
+    @ApiOperation(value = "Create a new title")
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> createTitle(@Valid @RequestBody Title title) {
+    public ResponseEntity<Title> createTitle(@ApiParam(value = "Title object store in database")
+                                             @Valid @RequestBody Title title) {
         Title savedTitle = titleService.saveTitle(title);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -60,8 +69,10 @@ public class TitleController {
         return ResponseEntity.created(location).body(savedTitle);
     }
 
+    @ApiOperation(value = "Delete a title by ID ")
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> deleteTitleById(@PathVariable(name = "id") Long titleId) {
+    public ResponseEntity<Title> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
+                                                 @PathVariable(name = "id") Long titleId) {
 
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
         if(!optionalTitle.isPresent()) {
@@ -75,8 +86,12 @@ public class TitleController {
        return ResponseEntity.noContent().build();
     }
 
+
+    @ApiOperation(value = "Update a title by ID")
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> updateTitleById(@PathVariable(name = "id") Long titleId,
+    public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Title ID to update title object", required = true)
+                                                 @PathVariable(name = "id") Long titleId,
+                                                 @ApiParam(value = "Update title object", required = true)
                                                  @Valid @RequestBody Title title) {
 
         Optional<Title> optionalTitle = titleService.findTitleById(titleId);
@@ -90,7 +105,7 @@ public class TitleController {
         title.setId(optionalTitle.get().getId());
         titleService.saveTitle(title);
 
-        return ResponseEntity.unprocessableEntity().build();
+        return ResponseEntity.noContent().build();
     }
 
 }
