@@ -62,7 +62,7 @@ public class CategoryController {
     }
 
     @ApiOperation(value = "Create a new category")
-    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE )
+    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> createCategory(@ApiParam(value = "Category object store in database", required = true)
                                                    @RequestBody @Valid Category category) {
 
