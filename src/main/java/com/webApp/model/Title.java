@@ -1,7 +1,5 @@
 package com.webApp.model;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -11,7 +9,7 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Entity(name = "Title")
-@Table(name = "titles", schema = "knowledge_data")
+@Table(name = "titles", schema = "knowledge_data", catalog = "knowledge_store")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
