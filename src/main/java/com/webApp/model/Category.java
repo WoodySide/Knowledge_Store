@@ -1,6 +1,6 @@
 package com.webApp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 import java.util.Set;
 
 @Entity(name = "Category")
-@Table(name = "categories")
+@Table(name = "categories", schema = "knowledge_data")
 @NoArgsConstructor
 @Getter
 @Setter
