@@ -83,11 +83,6 @@
             <version>4.13</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.projects</groupId>
-            <artifactId>springBoot</artifactId>
-            <version>7.0.30</version>
-        </dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
