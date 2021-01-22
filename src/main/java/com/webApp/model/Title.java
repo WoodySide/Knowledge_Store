@@ -8,8 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
-@Entity(name = "Title")
-@Table(name = "titles", schema = "knowledge_data", catalog = "knowledge_store")
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
