@@ -12,7 +12,7 @@ import java.util.Date;
 
 
 @Entity(name = "Link")
-@Table(name = "links", schema = "knowledge_data")
+@Table(name = "links")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

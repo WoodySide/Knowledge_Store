@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 import java.util.Set;
 
 @Entity(name = "Category")
-@Table(name = "categories", schema = "knowledge_data")
+@Table(name = "categories")
 @NoArgsConstructor
 @Getter
 @Setter
