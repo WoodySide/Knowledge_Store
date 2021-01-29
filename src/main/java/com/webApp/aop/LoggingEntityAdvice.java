@@ -26,7 +26,7 @@ public class LoggingEntityAdvice {
     public void applicationPackagePointcut() {}
 
     @Before(value = "applicationPackagePointcut()")
-    public void beforeFindAllAdvice(JoinPoint joinPoint) {
+    public void beforeAdvice(JoinPoint joinPoint) {
         log.info("---------------------------------------------------------");
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         log.info("Start of method execution = " + methodSignature.getName());
@@ -64,7 +64,7 @@ public class LoggingEntityAdvice {
     }
 
     @AfterReturning(value = "applicationPackagePointcut()", returning = "result")
-    public void afterReturningFindAllAdvice(JoinPoint joinPoint, Object result) {
+    public void afterReturningAdvice(JoinPoint joinPoint, Object result) {
         log.info("---------------------------------------");
         log.info("Method executed successfully = " + joinPoint.getSignature().getName());
         log.info("Returning type = " + result.toString());
