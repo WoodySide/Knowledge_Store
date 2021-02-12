@@ -1,4 +1,4 @@
-package com.webApp.controllers;
+package com.webApp.controller;
 
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;

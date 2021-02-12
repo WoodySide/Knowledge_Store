@@ -1,4 +1,4 @@
-package com.webApp.controllers;
+package com.webApp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webApp.model.Category;

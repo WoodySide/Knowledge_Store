@@ -22,7 +22,7 @@ public class LoggingEntityAdvice {
 
     @Pointcut(value = "within(com.webApp.repository.*)" +
             " || within(com.webApp.service..*)" +
-            " || within(com.webApp.controllers..*)")
+            " || within(com.webApp.controller..*)")
     public void applicationPackagePointcut() {}
 
     @Before(value = "applicationPackagePointcut()")
