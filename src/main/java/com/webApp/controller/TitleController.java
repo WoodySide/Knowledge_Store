@@ -2,6 +2,7 @@ package com.webApp.controller;
 
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;
+import com.webApp.repository.TitleRepository;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -9,22 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.validation.Valid;
-import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/titles/")
+@RequestMapping("/api/v1/")
 public class TitleController {
 
     private final TitleService titleService;
+    private final TitleRepository titleRepository;
 
     @Autowired
-    public TitleController(TitleService titleService) {
+    public TitleController(TitleService titleService, TitleRepository titleRepository) {
         this.titleService = titleService;
+        this.titleRepository = titleRepository;
     }
 
 
@@ -35,77 +38,54 @@ public class TitleController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
     })
-    @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/titles", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Title>> getAllTitles() {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
 
 
     @ApiOperation(value = "Get a title by ID ")
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
                                                   @PathVariable(name = "id") Long titleId) {
-        Optional<Title> optionalTitle = titleService.findTitleById(titleId);
-
-        if(!optionalTitle.isPresent()) {
-            log.error("Title ID: " + titleId + " doesn't exist");
-            throw new NoSuchEntityException("There is no title with ID: " +
-                    titleId + " in database");
-        }
-
-        return ResponseEntity.ok(optionalTitle.get());
+        Title title = titleService.findTitleById(titleId)
+                .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
+        return ResponseEntity.ok().body(title);
     }
 
 
     @ApiOperation(value = "Create a new title")
-    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Title> createTitle(@ApiParam(value = "Title object store in database")
+    @PostMapping(path = "/titles", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Title createTitle(@ApiParam(value = "Title object store in database")
                                              @Valid @RequestBody Title title) {
-        Title savedTitle = titleService.saveTitle(title);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(savedTitle.getId()).toUri();
-
-        return ResponseEntity.created(location).body(savedTitle);
+        return titleService.saveTitle(title);
     }
 
     @ApiOperation(value = "Delete a title by ID ")
-    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                  @PathVariable(name = "id") Long titleId) {
+        Title title = titleService.findTitleById(titleId)
+                .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
 
-        Optional<Title> optionalTitle = titleService.findTitleById(titleId);
-        if(!optionalTitle.isPresent()) {
-            log.error("Title Id: " + titleId + " doesn't exist");
-            throw new NoSuchEntityException("There is no title with ID: " +
-                    titleId + " to be deleted in database");
-        }
+        titleRepository.delete(title);
 
-       titleService.deleteTitleById(optionalTitle.get().getId());
-
-       return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
     }
 
 
     @ApiOperation(value = "Update a title by ID")
-    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Title ID to update title object", required = true)
                                                  @PathVariable(name = "id") Long titleId,
                                                  @ApiParam(value = "Update title object", required = true)
                                                  @Valid @RequestBody Title title) {
 
-        Optional<Title> optionalTitle = titleService.findTitleById(titleId);
+        Title checkTitle  = titleService.findTitleById(titleId)
+                .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
 
-        if(!optionalTitle.isPresent()) {
-            log.error("Title with ID: " + titleId + " doesn't exist");
-            throw new NoSuchEntityException("There is no title ID: " +
-                    titleId + " to be updated in database");
-        }
-
-        title.setId(optionalTitle.get().getId());
-        titleService.saveTitle(title);
-
-        return ResponseEntity.noContent().build();
+        checkTitle.setName(title.getName());
+        final Title updatedTitle = titleService.saveTitle(title);
+        return ResponseEntity.ok(updatedTitle);
     }
-
 }
