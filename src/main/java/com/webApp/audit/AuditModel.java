@@ -27,7 +27,7 @@ public abstract class AuditModel implements Serializable {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
-    @JsonIgnore
     @LastModifiedDate
+    @JsonIgnore
     private Date updatedAt;
 }
