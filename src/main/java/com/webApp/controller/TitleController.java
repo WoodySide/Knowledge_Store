@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/titles/")
 public class TitleController {
 
     private final TitleService titleService;
@@ -38,14 +38,14 @@ public class TitleController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
     })
-    @GetMapping(path = "/titles", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Title>> getAllTitles() {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
 
 
     @ApiOperation(value = "Get a title by ID ")
-    @GetMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
                                                   @PathVariable(name = "id") Long titleId) {
         Title title = titleService.findTitleById(titleId)
@@ -55,14 +55,14 @@ public class TitleController {
 
 
     @ApiOperation(value = "Create a new title")
-    @PostMapping(path = "/titles", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Title createTitle(@ApiParam(value = "Title object store in database")
                                              @Valid @RequestBody Title title) {
         return titleService.saveTitle(title);
     }
 
     @ApiOperation(value = "Delete a title by ID ")
-    @DeleteMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                  @PathVariable(name = "id") Long titleId) {
         Title title = titleService.findTitleById(titleId)
@@ -75,7 +75,7 @@ public class TitleController {
 
 
     @ApiOperation(value = "Update a title by ID")
-    @PutMapping(path = "/titles/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Title ID to update title object", required = true)
                                                  @PathVariable(name = "id") Long titleId,
                                                  @ApiParam(value = "Update title object", required = true)
