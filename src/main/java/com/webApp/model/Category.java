@@ -2,6 +2,7 @@ package com.webApp.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.webApp.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -18,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel(description = "All details about the Category")
-public class Category {
+public class Category extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

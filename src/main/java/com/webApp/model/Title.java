@@ -1,5 +1,6 @@
 package com.webApp.model;
 
+import com.webApp.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -17,7 +18,7 @@ import java.util.Set;
 @ToString
 @Builder
 @ApiModel(description = "All details about the Title")
-public class Title {
+public class Title extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

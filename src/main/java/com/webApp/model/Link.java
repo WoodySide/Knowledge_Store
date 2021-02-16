@@ -1,14 +1,13 @@
 package com.webApp.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.webApp.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Date;
 
 
 @Entity(name = "Link")
@@ -20,7 +19,7 @@ import java.util.Date;
 @Builder
 @ToString
 @ApiModel(description = "All details about the Links")
-public class Link {
+public class Link extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +36,6 @@ public class Link {
     @Size(min = 0, max = 500, message = "Description should not be greater than 500 symbols")
     @ApiModelProperty(notes = "Description about the link")
     private String linkDescription;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date", nullable = false, updatable = false)
-    @ApiModelProperty(notes = "Date of link creation")
-    private Date creationDate;
 
     @ManyToOne(cascade = {CascadeType.DETACH,CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
