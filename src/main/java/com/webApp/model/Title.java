@@ -1,5 +1,6 @@
 package com.webApp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.webApp.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,8 +35,9 @@ public class Title extends AuditModel {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",
-             fetch = FetchType.LAZY)
+             fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference
     private Set<Category> categories;
 
     public Title(String name) {

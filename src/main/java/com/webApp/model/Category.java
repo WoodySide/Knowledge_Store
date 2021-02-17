@@ -1,6 +1,8 @@
 package com.webApp.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.webApp.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
@@ -35,14 +37,15 @@ public class Category extends AuditModel {
     private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
-            CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+            CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "title_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonBackReference
     private Title title;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category",
-             fetch = FetchType.LAZY)
+             fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference
     private Set<Link> links;
 
     public Category(Long id, String name) {
