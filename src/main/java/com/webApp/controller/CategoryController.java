@@ -3,6 +3,8 @@ package com.webApp.controller;
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Title;
+import com.webApp.repository.CategoryRepository;
+import com.webApp.repository.TitleRepository;
 import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.ApiOperation;
@@ -11,28 +13,35 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/categories/")
+@RequestMapping("api/v1")
 public class CategoryController {
 
-   private final TitleService titleService;
+    private final TitleService titleService;
 
-   private final CategoryService categoryService;
+    private final CategoryService categoryService;
+
+    private final CategoryRepository categoryRepository;
+
+    private final TitleRepository titleRepository;
 
     @Autowired
-    public CategoryController(TitleService titleService, CategoryService categoryService) {
+    public CategoryController(TitleService titleService, CategoryService categoryService, CategoryRepository categoryRepository, TitleRepository titleRepository) {
         this.titleService = titleService;
         this.categoryService = categoryService;
+        this.categoryRepository = categoryRepository;
+        this.titleRepository = titleRepository;
     }
 
     @ApiOperation(value = "View a list of available categories", response = List.class)
@@ -42,56 +51,47 @@ public class CategoryController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
     })
-    @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.findAllCategories());
+    @GetMapping(path = "titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Page<Category> getAllCategoriesByTitleId(@PathVariable(value = "titleId") Long titleId, Pageable pageable) {
+        return categoryService.findAllCategoriesByTitleId(titleId, pageable);
     }
 
-    @ApiOperation(value = "Get a category by ID")
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> getCategoryById(@ApiParam(value = "Category ID from which object category will be retrieved", required = true)
-                                                    @PathVariable(name = "id") Long categoryId) {
-        Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
-        if(!optionalCategory.isPresent()) {
-            log.error("Category with ID: " + categoryId + " doesn't exist");
-            throw new NoSuchEntityException("There is no category with ID: " +
-                    categoryId + " in database");
-        }
+    @GetMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Category> getCategoryById(@PathVariable(value = "titleId") Long titleId,
+                                                    @PathVariable(value = "categoryId") Long categoryId) {
 
-        return ResponseEntity.ok(optionalCategory.get());
+       Title title = titleService.findTitleById(titleId)
+               .orElseThrow(() -> new NoSuchEntityException("Title id not found " + titleId));
+
+       Category category = categoryService.findCategoryById(categoryId)
+               .orElseThrow(() -> new NoSuchEntityException("Category id not found " + categoryId));
+
+       category.setTitle(title);
+       return ResponseEntity.ok().body(category);
     }
 
-    @ApiOperation(value = "Create a new category")
-    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> createCategory(@ApiParam(value = "Category object store in database", required = true)
-                                                   @RequestBody @Valid Category category) {
-
-        Optional<Title> optionalTitle = titleService.findTitleById(category.getTitle().getId());
-
-        if(!optionalTitle.isPresent()) {
-            log.error("Title: " + optionalTitle + " doesn't exist");
-            throw new NoSuchEntityException("There is no title: " +
-                    optionalTitle + " in database");
-        }
-
-        category.setTitle(optionalTitle.get());
-        Category savedCategory = categoryService.saveCategory(category);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(savedCategory.getId()).toUri();
-
-        return ResponseEntity.created(location).body(savedCategory);
+    @PostMapping(path = "/titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Category createCategory(@PathVariable(value = "titleId") Long titleId,
+                                   @Valid @RequestBody Category category) {
+        return titleService.findTitleById(titleId)
+                .map(title -> {
+                    category.setTitle(title);
+                    return categoryService.saveCategory(category);
+                }).orElseThrow(() -> new NoSuchEntityException("category not found"));
     }
 
     @ApiOperation(value = "Update a category by ID")
-    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> updateCategoryById(@ApiParam(value = "Update title object", required = true)
                                                        @RequestBody @Valid Category category,
                                                        @ApiParam(value = "Title ID to update title object", required = true)
-                                                       @PathVariable(name = "id") Long categoryId) {
+                                                       @PathVariable(name = "titleId") Long titleId,
+                                                       @ApiParam(value = "Category ID to update category object", required = true)
+                                                       @PathVariable(name = "categoryId") Long categoryId) {
 
-        Optional<Title> optionalTitle = titleService.findTitleById(category.getTitle().getId());
+        Optional<Title> optionalTitle = titleService.findTitleById(titleId);
 
-        if(!optionalTitle.isPresent()) {
+        if (!optionalTitle.isPresent()) {
             log.error("Title: " + optionalTitle + " doesn't exist");
             throw new NoSuchEntityException("There is no title: " +
                     optionalTitle + " in database");
@@ -99,11 +99,12 @@ public class CategoryController {
 
         Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
 
-        if(!optionalCategory.isPresent()) {
+        if (!optionalCategory.isPresent()) {
             log.error("Category with ID: " + categoryId + " doesn't exist");
             throw new NoSuchEntityException("There is no category with ID: " +
                     categoryId + " to be updated in database");
         }
+
 
         category.setTitle(optionalTitle.get());
         category.setId(optionalCategory.get().getId());
@@ -112,20 +113,18 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
+
     @ApiOperation(value = "Delete a category by ID")
-    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> deleteCategoryById(@ApiParam(value = "Category ID from which title object will be deleted from database", required = true)
-                                                       @PathVariable("id") Long categoryId) {
-        Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
-
-        if(!optionalCategory.isPresent()) {
-            log.error("Category with ID: " + categoryId + " doesn't exist");
-            throw new NoSuchEntityException("There is no category with ID: " +
-                    categoryId + " to be deleted in database");
-        }
-
-        categoryService.deleteCategoryById(optionalCategory.get().getId());
-
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteCategoryById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
+                                                @PathVariable("titleId") Long titleId,
+                                                @ApiParam(value = "Category ID from which title object will be deleted from database", required = true)
+                                                @PathVariable("categoryId") Long categoryId) {
+        return categoryService.findByTitleIdAndCategoryId(categoryId,titleId)
+                .map(category -> {
+                    categoryRepository.delete(category);
+                    return ResponseEntity.ok().build();
+                }).orElseThrow(() -> new NoSuchEntityException("Category not found with id " + categoryId
+                                                                + " and titleId " + titleId));
     }
 }
