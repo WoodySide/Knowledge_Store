@@ -34,14 +34,12 @@ public class CategoryController {
 
     private final CategoryRepository categoryRepository;
 
-    private final TitleRepository titleRepository;
 
     @Autowired
-    public CategoryController(TitleService titleService, CategoryService categoryService, CategoryRepository categoryRepository, TitleRepository titleRepository) {
+    public CategoryController(TitleService titleService, CategoryService categoryService, CategoryRepository categoryRepository) {
         this.titleService = titleService;
         this.categoryService = categoryService;
         this.categoryRepository = categoryRepository;
-        this.titleRepository = titleRepository;
     }
 
     @ApiOperation(value = "View a list of available categories", response = List.class)
@@ -56,10 +54,10 @@ public class CategoryController {
         return categoryService.findAllCategoriesByTitleId(titleId, pageable);
     }
 
+    @ApiOperation(value = "Get a category by ID")
     @GetMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> getCategoryById(@PathVariable(value = "titleId") Long titleId,
                                                     @PathVariable(value = "categoryId") Long categoryId) {
-
        Title title = titleService.findTitleById(titleId)
                .orElseThrow(() -> new NoSuchEntityException("Title id not found " + titleId));
 
@@ -70,6 +68,7 @@ public class CategoryController {
        return ResponseEntity.ok().body(category);
     }
 
+    @ApiOperation(value = "Create a category by ID")
     @PostMapping(path = "/titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public Category createCategory(@PathVariable(value = "titleId") Long titleId,
                                    @Valid @RequestBody Category category) {
