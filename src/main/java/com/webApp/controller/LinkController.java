@@ -3,37 +3,40 @@ package com.webApp.controller;
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Link;
+import com.webApp.repository.LinkRepository;
 import com.webApp.service.CategoryService;
 import com.webApp.service.LinkService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/links/")
+@RequestMapping("/api/v1/titles/{titleId}")
 public class LinkController {
 
     private final CategoryService categoryService;
 
     private final LinkService linkService;
 
+    private final LinkRepository linkRepository;
+
     @Autowired
     public LinkController(CategoryService categoryService,
-                          LinkService linkService) {
+                          LinkService linkService, LinkRepository linkRepository) {
         this.categoryService = categoryService;
         this.linkService = linkService;
+        this.linkRepository = linkRepository;
     }
 
     @ApiOperation(value = "View a list of available links", response = List.class)
@@ -43,58 +46,54 @@ public class LinkController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
     })
-    @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Link>> getAllLinks() {
-        return ResponseEntity.ok(linkService.findAllLinks());
+    @GetMapping(path = "categories/{categoryId}/links", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<Link>> getAllLinksByCategoryId(@PathVariable(value = "categoryId") Long categoryId,
+                                                  Pageable pageable) {
+        return ResponseEntity.ok(linkService.findByCategoryId(categoryId, pageable));
     }
 
-    @ApiOperation(value = "Get a link by ID")
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> getLinkById(@ApiParam(value = "Link ID from which object category will be retrieved", required = true)
-                                            @PathVariable(name = "id") Long linkId) {
-        Optional<Link> optionalLink = linkService.findLinkById(linkId);
+    @ApiOperation(value = "Get link id")
+    @GetMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Link> getLinkById(@PathVariable(value = "categoryId") Long categoryId,
+                                            @PathVariable(value = "linkId") Long linkId) {
 
-        if(!optionalLink.isPresent()) {
-            log.error("Link Id: " + linkId + " doesn't exist");
-            throw new NoSuchEntityException("There is no link with ID: " +
-                    linkId + " in database");
-        }
+        Category category = categoryService.findCategoryById(categoryId)
+                .orElseThrow(() -> new NoSuchEntityException("Category id not found: " + categoryId));
 
-        return ResponseEntity.ok(optionalLink.get());
+        Link link = linkService.findLinkById(linkId)
+                .orElseThrow(() -> new NoSuchEntityException("Link id not found: " + linkId));
+
+        link.setCategory(category);
+
+        return ResponseEntity.ok().body(link);
+
     }
 
-    @ApiOperation(value = "Create a new link")
-    @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Link> createLink(@ApiParam(value = "Link object store in database", required = true)
-                                           @RequestBody @Valid Link link) {
-        Optional<Category> optionalCategory = categoryService.findCategoryById(link.getCategory().getId());
+    @ApiOperation(value = "Create new link")
+    @PostMapping(path = "categories/{categoryId}/links")
+    public Link createLink(@PathVariable(value = "categoryId") Long categoryId,
+                           @RequestBody @Valid Link createdLink) {
 
-        if(!optionalCategory.isPresent()) {
-            log.error("Category: " + optionalCategory + " doesnt' exist");
-            throw new NoSuchEntityException("There is no category: " +
-                    optionalCategory + " in database");
-        }
-
-        link.setCategory(optionalCategory.get());
-
-        Link savedLink = linkService.saveLink(link);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(savedLink).toUri();
-
-        return ResponseEntity.created(location).body(savedLink);
+        return categoryService.findCategoryById(categoryId)
+                .map(category -> {
+                    createdLink.setCategory(category);
+                    return linkService.saveLink(createdLink);
+                }).orElseThrow(() -> new NoSuchEntityException("Link not found"));
     }
 
-    @ApiOperation(value = "Update a link by ID")
-    @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update link by ID")
+    @PutMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Link> updateLinkById(@ApiParam(value = "Update link object", required = true)
                                                @RequestBody @Valid Link link,
-                                               @ApiParam(value = "Link ID to update title object", required = true)
-                                               @PathVariable(name = "id") Long linkId) {
-        Optional<Category> optionalCategory = categoryService.findCategoryById(link.getCategory().getId());
+                                               @ApiParam(value = "Category ID to update category object", required = true)
+                                               @PathVariable(value = "categoryId") Long categoryId,
+                                               @ApiParam(value = "Link ID to update link object", required = true)
+                                               @PathVariable(value = "linkId") Long linkId) {
+
+        Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
 
         if(!optionalCategory.isPresent()) {
-            log.error("Category  " + optionalCategory + " doesn't exist");
+            log.error("Category: " + optionalCategory + " doesn't exist");
             throw new NoSuchEntityException("There is no category: " +
                     optionalCategory + " in database");
         }
@@ -102,32 +101,33 @@ public class LinkController {
         Optional<Link> optionalLink = linkService.findLinkById(linkId);
 
         if(!optionalLink.isPresent()) {
-            log.error("Link Id " + linkId + " doesn't exist");
-            throw new NoSuchEntityException("There is no link with ID: " +
-                    linkId + " to be updated in database");
+            log.error("Link: " + optionalLink + " doesn't exist");
+            throw new NoSuchEntityException("There is no link: " +
+                    optionalLink + " in database");
         }
 
         link.setCategory(optionalCategory.get());
+
         link.setId(optionalLink.get().getId());
+
         linkService.saveLink(link);
+
 
         return ResponseEntity.noContent().build();
     }
 
-    @ApiOperation(value = "Delete a link by ID")
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Link> deleteLinkById(@ApiParam(value = "Link ID from which title object will be deleted from database", required = true)
-                                               @PathVariable(name = "id") Long linkId) {
-        Optional<Link> optionalLink = linkService.findLinkById(linkId);
+    @ApiOperation(value = "Delete link by ID")
+    @DeleteMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteLinkById(@ApiParam(value = "Category ID from which category object will be deleted", required = true)
+                                            @PathVariable(value = "categoryId") Long categoryId,
+                                            @ApiParam(value = "Link ID from which link object will be deleted", required = true)
+                                            @PathVariable(value = "linkId") Long linkId) {
 
-        if(!optionalLink.isPresent()) {
-            log.error("Link Id " + linkId + " doesn't exist");
-            throw new NoSuchEntityException("There is no link with ID: " +
-                    linkId + " to be deleted in database");
-        }
-
-        linkService.deleteLinkById(optionalLink.get().getId());
-
-        return ResponseEntity.noContent().build();
+        return linkService.findByCategoryIdAndLinkId(linkId, categoryId)
+                .map(link -> {
+                    linkRepository.delete(link);
+                    return ResponseEntity.ok().build();
+                }).orElseThrow(() -> new NoSuchEntityException("Link not found with ID " + linkId
+                                                                + " and category with ID " + categoryId));
     }
 }

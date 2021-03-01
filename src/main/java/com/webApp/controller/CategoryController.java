@@ -76,12 +76,12 @@ public class CategoryController {
                 .map(title -> {
                     category.setTitle(title);
                     return categoryService.saveCategory(category);
-                }).orElseThrow(() -> new NoSuchEntityException("category not found"));
+                }).orElseThrow(() -> new NoSuchEntityException("Category not found"));
     }
 
     @ApiOperation(value = "Update a category by ID")
     @PutMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Category> updateCategoryById(@ApiParam(value = "Update title object", required = true)
+    public ResponseEntity<Category> updateCategoryById(@ApiParam(value = "Update category object", required = true)
                                                        @RequestBody @Valid Category category,
                                                        @ApiParam(value = "Title ID to update title object", required = true)
                                                        @PathVariable(name = "titleId") Long titleId,
@@ -106,14 +106,16 @@ public class CategoryController {
 
 
         category.setTitle(optionalTitle.get());
+
         category.setId(optionalCategory.get().getId());
+
         categoryService.saveCategory(category);
 
         return ResponseEntity.noContent().build();
     }
 
 
-    @ApiOperation(value = "Delete a category by ID")
+    @ApiOperation(value = "Delete category by ID")
     @DeleteMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteCategoryById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                 @PathVariable("titleId") Long titleId,
@@ -123,7 +125,7 @@ public class CategoryController {
                 .map(category -> {
                     categoryRepository.delete(category);
                     return ResponseEntity.ok().build();
-                }).orElseThrow(() -> new NoSuchEntityException("Category not found with id " + categoryId
-                                                                + " and titleId " + titleId));
+                }).orElseThrow(() -> new NoSuchEntityException("Category not found with ID " + categoryId
+                                                                + " and title with ID " + titleId));
     }
 }

@@ -31,8 +31,8 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Category> findByTitleIdAndCategoryId(Long titleId, Long categoryId) {
-        return categoryRepository.findByIdAndTitleId(titleId,categoryId);
+    public Optional<Category> findByTitleIdAndCategoryId(Long categoryId,Long titleId) {
+        return categoryRepository.findByIdAndTitleId(categoryId,titleId);
     }
 
     public Optional<Category> findCategoryById(Long id) {
