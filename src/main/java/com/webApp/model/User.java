@@ -1,5 +1,6 @@
 package com.webApp.model;
 
+import com.webApp.model.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
@@ -18,7 +19,7 @@ import java.util.Set;
 @ToString
 @Builder
 @ApiModel(description = "All available users")
-public class User {
+public class User extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
