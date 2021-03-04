@@ -1,7 +1,7 @@
 package com.webApp.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.webApp.audit.AuditModel;
+import com.webApp.model.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
