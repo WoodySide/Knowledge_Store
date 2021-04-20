@@ -1,4 +1,4 @@
-package com.webApp.aop;
+package com.webApp.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -15,24 +15,15 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class LoggingEntityAdvice {
 
-    @Pointcut(value = "within(@org.springframework.stereotype.Repository *)" +
-            " || within(@org.springframework.stereotype.Service *)" +
-            " || within(@org.springframework.web.bind.annotation.RestController *)")
-    public void springBeanPointcut() {}
-
-    @Pointcut(value = "within(com.webApp.repository.*)" +
-            " || within(com.webApp.service..*)" +
-            " || within(com.webApp.controller..*)")
-    public void applicationPackagePointcut() {}
-
-    @Before(value = "applicationPackagePointcut()")
+    @Before(value = "com.webApp.aspect.SpringPointcuts.applicationPackagePointcut()")
     public void beforeAdvice(JoinPoint joinPoint) {
         log.info("---------------------------------------------------------");
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         log.info("Start of method execution = " + methodSignature.getName());
     }
 
-    @Around("springBeanPointcut() && applicationPackagePointcut()")
+    @Around(value = "com.webApp.aspect.SpringPointcuts.springBeanPointcut() " +
+            "&& com.webApp.aspect.SpringPointcuts.applicationPackagePointcut()")
     public Object measureMethodExecutionTime(ProceedingJoinPoint pjp) throws Throwable {
         long start = System.nanoTime();
         Object retVal = pjp.proceed();
@@ -43,7 +34,8 @@ public class LoggingEntityAdvice {
         return retVal;
     }
 
-    @Around("applicationPackagePointcut() && springBeanPointcut()")
+    @Around(value = "com.webApp.aspect.SpringPointcuts.springBeanPointcut() " +
+            "&& com.webApp.aspect.SpringPointcuts.applicationPackagePointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         if (log.isDebugEnabled()) {
             log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
@@ -63,14 +55,16 @@ public class LoggingEntityAdvice {
         }
     }
 
-    @AfterReturning(value = "applicationPackagePointcut()", returning = "result")
+    @AfterReturning(value = "com.webApp.aspect.SpringPointcuts.applicationPackagePointcut()",
+            returning = "result")
     public void afterReturningAdvice(JoinPoint joinPoint, Object result) {
         log.info("---------------------------------------");
         log.info("Method executed successfully = " + joinPoint.getSignature().getName());
         log.info("Returning type = " + result.toString());
     }
 
-    @AfterThrowing(pointcut = "applicationPackagePointcut() && springBeanPointcut()", throwing = "e")
+    @AfterThrowing(pointcut = "com.webApp.aspect.SpringPointcuts.springBeanPointcut() \" +\n" +
+            "\"&& com.webApp.aspect.SpringPointcuts.applicationPackagePointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL");
