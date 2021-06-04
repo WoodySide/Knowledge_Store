@@ -4,21 +4,17 @@ import com.webApp.model.Title;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+
 @DataJpaTest
+@RunWith(SpringRunner.class)
 public class TitleRepositoryTest {
 
     @Autowired
@@ -27,43 +23,39 @@ public class TitleRepositoryTest {
     @Autowired
     private TitleRepository titleRepository;
 
+
     @Test
-    public void whenFindTitleByName_thenReturnTitle() {
+    public void whenRepositoryIsEmpty_thenReturnNull() {
+        Iterable<Title> titles = titleRepository.findAll();
 
-        //given
-        Title title1 = Title.builder()
-                .name("Subject")
-                .build();
-
-        //when
-        titleRepository.save(title1);
-
-        Title title2 = titleRepository.findTitleByName("Subject");
-        assertNotNull(title1);
-
-        //then
-        assertEquals(title2.getName(), title1.getName());
+        assertThat(titles).isEmpty();
     }
 
-    @Test
-    public void whenFindById_thenReturnTitle() {
 
-        //given
-        Title title =  Title.builder()
-                .name("Subject")
+    @Test
+    public void whenFindByName_thenReturnTitle() {
+
+        Title title = Title.builder()
+                .name("Title")
                 .build();
+
         testEntityManager.persist(title);
-        testEntityManager.flush();
 
         //when
-        Optional<Title> foundTitle = titleRepository.findById(title.getId());
+        Title foundTitle = titleRepository.findTitleByName("Title");
 
         //then
-        assertThat(foundTitle.get().getId()).isEqualTo(title.getId());
+        assertThat(foundTitle.getName()).isEqualTo("Title");
     }
 
     @Test
-    public void whenFindAll_thenReturnTitleList() {
+    public void whenFindAll_thenReturnList() {
+
+        Title title = Title.builder()
+                .name("Title")
+                .build();
+
+        testEntityManager.persist(title);
         //when
         List<Title> titles = titleRepository.findAll();
 
@@ -72,36 +64,42 @@ public class TitleRepositoryTest {
     }
 
     @Test
-    public void whenDeleteTitle_thenReturnNull() {
-        //given
-        Title title =  Title.builder()
-                .name("Subject")
-                .build();
+    public void whenFindById_thenReturnTitle() {
+
+        Title title = Title.builder().name("Title2").build();
+
         testEntityManager.persist(title);
-        testEntityManager.flush();
 
-        //when
-        titleRepository.save(title);
+        Title foundTitle = titleRepository.findById(title.getId()).get();
 
-        //then
-        titleRepository.delete(title);
+        assertThat(foundTitle).isEqualTo(title);
     }
 
     @Test
-    public void whenDeleteTitleById_thenReturnNull() {
+    public void whenDeleteTitle_thenReturnNull() {
+        Title title1 = Title.builder().name("Title1").build();
+        testEntityManager.persist(title1);
 
-        //given
-        Title title =  Title.builder()
-                .name("Subject")
-                .build();
-        testEntityManager.persist(title);
-        testEntityManager.flush();
+        Title title2 = Title.builder().name("Title2").build();
+        testEntityManager.persist(title2);
 
-        //when
-        titleRepository.save(title);
+        Title title3 = Title.builder().name("Title3").build();
+        testEntityManager.persist(title3);
 
-        //then
-        titleRepository.deleteById(title.getId());
+        titleRepository.deleteById(title1.getId());
+
+        Iterable<Title> titles = titleRepository.findAll();
+
+        assertThat(titles).hasSize(2).contains(title2,title3);
     }
 
+    @Test
+    public void whenDeleteAllTitles_thenReturnNoTitles() {
+        testEntityManager.persist(Title.builder().name("Title1").build());
+        testEntityManager.persist(Title.builder().name("Title2").build());
+
+        titleRepository.deleteAll();
+
+        assertThat(titleRepository.findAll()).isEmpty();
+    }
 }
