@@ -176,19 +176,4 @@ public class CategoryRepositoryTest {
         //then
         assertThat(categoryRepository.findAll()).isEmpty();
     }
-
-    @Test
-    public void whenFindByTitleId_thenReturnCategory() {
-        Title title = Title.builder()
-                .name("Title")
-                .build();
-
-        Category category = Category.builder()
-                .name("Category")
-                .build();
-
-        category.setTitle(title);
-
-        testEntityManager.persist(category);
-    }
 }
