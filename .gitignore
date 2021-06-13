@@ -2,8 +2,7 @@ HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
-.DS_Store
+!**/src/test/**/target/git
 ### STS ###
 .apt_generated
 .classpath
