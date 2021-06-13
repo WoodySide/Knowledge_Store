@@ -7,12 +7,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,8 +28,9 @@ public class TitleServiceTest {
 
     @Test
     public void whenFindAllTitles_thenReturnTitleList() {
+
         Title title = Title.builder()
-                .name("Economy")
+                .name("Title")
                 .build();
 
         List<Title> expectedTitles = Collections.singletonList(title);
@@ -42,25 +45,31 @@ public class TitleServiceTest {
     }
 
     @Test
-    public void whenFindTitleById_thenReturnTitle() {
-        when(titleRepository.findById(1L))
-                .thenReturn(Optional.of(new Title(1L, "History")));
+    public void whenUpdateTitle_thenReturnUpdatedOne() {
 
-        Optional<Title> title = titleService.findTitleById(1L);
+        Title title = Title
+                .builder()
+                .name("Title")
+                .build();
 
-        assertEquals("History", title.get().getName());
+        given(titleRepository.save(title)).willReturn(title);
+
+        Title expectedTitle = titleService.saveTitle(title);
+
+        assertThat(expectedTitle).isNotNull();
+
+        verify(titleRepository).save(any(Title.class));
     }
 
     @Test
-    public void whenCreateTitle_thenReturnCreatedOne() {
+    public void whenFindTitleById_thenReturnTitle() {
 
-        Title titleToBeSaved = Title.builder()
-                .name("Economy")
-                .build();
+        when(titleRepository.findById(1L))
+                .thenReturn(Optional.of(new Title(1L, "Title")));
 
-        titleService.saveTitle(titleToBeSaved);
+        Optional<Title> title = titleService.findTitleById(1L);
 
-        verify(titleRepository, times(1)).save(titleToBeSaved);
+        assertEquals("Title", title.get().getName());
     }
 
     @Test
@@ -68,11 +77,12 @@ public class TitleServiceTest {
 
         Title titleToBeDeleted = Title.builder()
                 .id(1L)
-                .name("History")
+                .name("Title")
                 .build();
 
         titleService.deleteTitleById(titleToBeDeleted.getId());
 
-        verify(titleRepository, times(1)).deleteById(titleToBeDeleted.getId());
+        verify(titleRepository, times(1))
+                .deleteById(titleToBeDeleted.getId());
     }
 }
