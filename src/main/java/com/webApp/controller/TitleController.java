@@ -2,19 +2,17 @@ package com.webApp.controller;
 
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Title;
-import com.webApp.repository.TitleRepository;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
@@ -22,12 +20,10 @@ import java.util.Map;
 public class TitleController {
 
     private final TitleService titleService;
-    private final TitleRepository titleRepository;
 
     @Autowired
-    public TitleController(TitleService titleService, TitleRepository titleRepository) {
+    public TitleController(TitleService titleService) {
         this.titleService = titleService;
-        this.titleRepository = titleRepository;
     }
 
 
@@ -56,6 +52,7 @@ public class TitleController {
 
     @ApiOperation(value = "Create a new title")
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public Title createTitle(@ApiParam(value = "Title object store in database")
                                              @Valid @RequestBody Title title) {
         return titleService.saveTitle(title);
@@ -68,9 +65,9 @@ public class TitleController {
         Title title = titleService.findTitleById(titleId)
                 .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
 
-        titleRepository.delete(title);
+        titleService.deleteTitleById(title.getId());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
 
