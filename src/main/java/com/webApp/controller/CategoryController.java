@@ -3,8 +3,6 @@ package com.webApp.controller;
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Title;
-import com.webApp.repository.CategoryRepository;
-import com.webApp.repository.TitleRepository;
 import com.webApp.service.CategoryService;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.ApiOperation;
@@ -32,14 +30,11 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    private final CategoryRepository categoryRepository;
-
-
     @Autowired
-    public CategoryController(TitleService titleService, CategoryService categoryService, CategoryRepository categoryRepository) {
+    public CategoryController(TitleService titleService,
+                              CategoryService categoryService) {
         this.titleService = titleService;
         this.categoryService = categoryService;
-        this.categoryRepository = categoryRepository;
     }
 
     @ApiOperation(value = "View a list of available categories", response = List.class)
@@ -123,7 +118,7 @@ public class CategoryController {
                                                 @PathVariable("categoryId") Long categoryId) {
         return categoryService.findByTitleIdAndCategoryId(categoryId,titleId)
                 .map(category -> {
-                    categoryRepository.delete(category);
+                    categoryService.deleteCategoryById(category.getId());
                     return ResponseEntity.ok().build();
                 }).orElseThrow(() -> new NoSuchEntityException("Category not found with ID " + categoryId
                                                                 + " and title with ID " + titleId));
