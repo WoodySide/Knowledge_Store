@@ -32,7 +32,7 @@ public class TitleController {
             @ApiResponse(code = 200, message = "Successfully retrieved list of titles"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-            @ApiResponse(code = 404, message = "The resource yoy were trying to reach is not found")
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Title>> getAllTitles() {
@@ -44,9 +44,9 @@ public class TitleController {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
                                                   @PathVariable(name = "id") Long titleId) {
-        Title title = titleService.findTitleById(titleId)
+        return titleService.findTitleById(titleId)
+                .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
-        return ResponseEntity.ok().body(title);
     }
 
 
@@ -62,12 +62,12 @@ public class TitleController {
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                  @PathVariable(name = "id") Long titleId) {
-        Title title = titleService.findTitleById(titleId)
+        return titleService.findTitleById(titleId)
+                .map(title ->  {
+                    titleService.deleteTitleById(titleId);
+                    return ResponseEntity.ok(title);
+                })
                 .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
-
-        titleService.deleteTitleById(title.getId());
-
-        return ResponseEntity.ok().build();
     }
 
 
@@ -77,7 +77,6 @@ public class TitleController {
                                                  @PathVariable(name = "id") Long titleId,
                                                  @ApiParam(value = "Update title object", required = true)
                                                  @Valid @RequestBody Title title) {
-
         Title checkTitle  = titleService.findTitleById(titleId)
                 .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
 
