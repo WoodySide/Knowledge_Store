@@ -3,10 +3,12 @@ package com.webApp.controller;
 import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.Category;
 import com.webApp.model.Link;
-import com.webApp.repository.LinkRepository;
 import com.webApp.service.CategoryService;
 import com.webApp.service.LinkService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,14 +31,11 @@ public class LinkController {
 
     private final LinkService linkService;
 
-    private final LinkRepository linkRepository;
-
     @Autowired
     public LinkController(CategoryService categoryService,
-                          LinkService linkService, LinkRepository linkRepository) {
+                          LinkService linkService) {
         this.categoryService = categoryService;
         this.linkService = linkService;
-        this.linkRepository = linkRepository;
     }
 
     @ApiOperation(value = "View a list of available links", response = List.class)
@@ -112,7 +111,6 @@ public class LinkController {
 
         linkService.saveLink(link);
 
-
         return ResponseEntity.noContent().build();
     }
 
@@ -125,7 +123,7 @@ public class LinkController {
 
         return linkService.findByCategoryIdAndLinkId(linkId, categoryId)
                 .map(link -> {
-                    linkRepository.delete(link);
+                    linkService.deleteLinkById(link.getId());
                     return ResponseEntity.ok().build();
                 }).orElseThrow(() -> new NoSuchEntityException("Link not found with ID " + linkId
                                                                 + " and category with ID " + categoryId));
