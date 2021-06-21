@@ -11,6 +11,10 @@ public class SpringPointcuts {
     @Pointcut(value = "within(com.webApp.repository.*)" +
             " || within(com.webApp.service..*)" +
             " || within(com.webApp.controller..*)")
-    public void applicationPackagePointcut() {}
+    public void applicationPackagePointcut() {
 
+    }
+
+    @Pointcut("within(com.webApp.service..*)")
+    public void serviceBeanPointcut() {}
 }
