@@ -3,6 +3,7 @@ package com.webApp.aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 public class SpringPointcuts {
+
     @Pointcut(value = "within(@org.springframework.stereotype.Repository *)" +
             " || within(@org.springframework.stereotype.Service *)" +
             " || within(@org.springframework.web.bind.annotation.RestController *)")
@@ -16,5 +17,6 @@ public class SpringPointcuts {
     }
 
     @Pointcut("within(com.webApp.service..*)")
-    public void serviceBeanPointcut() {}
+    public void serviceBeanPointcut() {
+    }
 }
