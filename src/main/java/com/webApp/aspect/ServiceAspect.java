@@ -38,8 +38,10 @@ public class ServiceAspect {
 
         String methodName = joinPoint.getSignature().getName();
 
-        log.info("Execution of " + methodName + " took = " +
-                TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
+        String className = joinPoint.getSignature().getDeclaringTypeName();
+
+        log.info("Exiting method [" + className + "." + methodName + "]; Execution time is: " +
+                TimeUnit.NANOSECONDS.toMillis(end - start) + " (ms)");
 
         log.info("**********************************");
 
@@ -53,6 +55,7 @@ public class ServiceAspect {
         log.info("**********************************");
 
         log.info("Method executed successfully = " + joinPoint.getSignature().getName());
+
         log.info("Returning: {}", result);
 
         log.info("**********************************");
@@ -61,6 +64,7 @@ public class ServiceAspect {
     @AfterThrowing(value = "com.webApp.aspect.SpringPointcuts.serviceBeanPointcut()",
             throwing = "ex")
     public void afterThrowingExceptionLoggingAdvice(JoinPoint joinPoint, Throwable ex) {
+
         log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(), ex.getCause() != null ? ex.getCause() : "NULL");
     }
