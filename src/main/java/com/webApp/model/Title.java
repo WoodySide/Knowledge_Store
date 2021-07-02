@@ -40,6 +40,11 @@ public class Title extends AuditModel {
     @JsonManagedReference
     private Set<Category> categories;
 
+    @ManyToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public Title(String name) {
         this.name = name;
     }
