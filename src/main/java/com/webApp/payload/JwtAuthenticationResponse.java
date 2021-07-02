@@ -1,2 +1,15 @@
-package com.webApp.payload;public class JwtAuthenticationResponse {
+package com.webApp.payload;
+
+import lombok.Data;
+
+@Data
+public class JwtAuthenticationResponse {
+
+    private String accessToken;
+
+    private String tokenType = "Bearer";
+
+    public JwtAuthenticationResponse(String accessToken) {
+        this.accessToken = accessToken;
+    }
 }
