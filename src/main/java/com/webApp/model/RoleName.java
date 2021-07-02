@@ -1,2 +1,6 @@
-package com.webApp.model;public enum RoleName {
+package com.webApp.model;
+
+public enum RoleName {
+    ROLE_USER,
+    ROLE_ADMIN
 }
