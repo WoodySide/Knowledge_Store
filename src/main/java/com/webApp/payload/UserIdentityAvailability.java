@@ -1,2 +1,13 @@
-package com.webApp.payload;public class UserIdentityAvailability {
+package com.webApp.payload;
+
+import lombok.Data;
+
+@Data
+public class UserIdentityAvailability {
+
+    private Boolean available;
+
+    public UserIdentityAvailability(Boolean available) {
+        this.available = available;
+    }
 }
