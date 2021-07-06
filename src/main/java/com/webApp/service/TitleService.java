@@ -41,4 +41,8 @@ public class TitleService {
         log.info("Delete by id {}", titleId);
         titleRepository.deleteById(titleId);
     }
+
+    public Optional<Title> findByTitleId(Long titleId) {
+        return titleRepository.findById(titleId);
+    }
 }

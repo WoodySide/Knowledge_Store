@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface TitleRepository extends JpaRepository<Title,Long> {
 
     Title findTitleByName(String titleName);
+
+    Title findByUserId(Long userId);
+
 }

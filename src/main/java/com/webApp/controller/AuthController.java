@@ -11,6 +11,7 @@ import com.webApp.payload.SignUpRequest;
 import com.webApp.repository.RoleRepository;
 import com.webApp.repository.UserRepository;
 import com.webApp.security.JwtTokenProvider;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/auth")
+@Api(tags = "{Authentication}")
 public class AuthController {
 
     @Autowired

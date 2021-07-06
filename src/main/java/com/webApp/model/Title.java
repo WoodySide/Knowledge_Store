@@ -1,5 +1,6 @@
 package com.webApp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.webApp.model.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
@@ -43,6 +44,7 @@ public class Title extends AuditModel {
     @ManyToOne(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     public Title(String name) {
@@ -53,5 +55,4 @@ public class Title extends AuditModel {
         this.id = id;
         this.name = name;
     }
-
 }

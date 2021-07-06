@@ -16,7 +16,8 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/titles/")
+@RequestMapping("/api/v1/titles")
+@Api(tags = "{Titles}")
 public class TitleController {
 
     private final TitleService titleService;
@@ -38,6 +39,7 @@ public class TitleController {
     public ResponseEntity<List<Title>> getAllTitles() {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
+
 
 
     @ApiOperation(value = "Get a title by ID ")
