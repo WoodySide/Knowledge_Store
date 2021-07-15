@@ -1,4 +1,4 @@
-package com.webApp.aspect;
+package com.webApp.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ServiceAspect {
 
-    @Before(value = "com.webApp.aspect.SpringPointcuts.serviceBeanPointcut()")
+    @Before(value = "com.webApp.advice.SpringPointcuts.serviceBeanPointcut()")
     public void beforeServiceMethodsLoggingAdvice(JoinPoint joinPoint) {
 
         log.info("**********************************");
@@ -27,7 +27,7 @@ public class ServiceAspect {
 
     }
 
-    @Around(value = "com.webApp.aspect.SpringPointcuts.serviceBeanPointcut()")
+    @Around(value = "com.webApp.advice.SpringPointcuts.serviceBeanPointcut()")
     public Object aroundServiceMethodOfMeasuringExecutionTimeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
 
         long start = System.nanoTime();
@@ -48,7 +48,7 @@ public class ServiceAspect {
         return retVal;
     }
 
-    @AfterReturning(value = "com.webApp.aspect.SpringPointcuts.serviceBeanPointcut()",
+    @AfterReturning(value = "com.webApp.advice.SpringPointcuts.serviceBeanPointcut()",
             returning = "result")
     public void afterReturningAdvice(JoinPoint joinPoint, Object result) {
 
@@ -61,7 +61,7 @@ public class ServiceAspect {
         log.info("**********************************");
     }
 
-    @AfterThrowing(value = "com.webApp.aspect.SpringPointcuts.serviceBeanPointcut()",
+    @AfterThrowing(value = "com.webApp.advice.SpringPointcuts.serviceBeanPointcut()",
             throwing = "ex")
     public void afterThrowingExceptionLoggingAdvice(JoinPoint joinPoint, Throwable ex) {
 
