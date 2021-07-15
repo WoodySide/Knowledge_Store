@@ -64,15 +64,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors()
-                .and()
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+        http
+                .cors()
+                    .and()
+                .csrf()
+                    .disable()
+                .exceptionHandling()
+                    .authenticationEntryPoint(jwtEntryPoint)
+                    .and()
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
                 .authorizeRequests()
-                .antMatchers("/",
+                    .antMatchers("/",
                         "/favicon.ico",
                         "/**/*.json",
                         "/**/*.xml",
@@ -90,9 +94,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.jpeg",
                         "/**/*.html",
                         "/**/*.css",
-                        "/**/*.js").permitAll()
-                .antMatchers("/**/api/auth/**").permitAll()
-                .anyRequest().authenticated();
+                        "/**/*.js")
+                    .permitAll()
+                .antMatchers("/**/api/auth/**")
+                    .permitAll()
+                .anyRequest()
+                    .authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
