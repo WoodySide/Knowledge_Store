@@ -16,6 +16,4 @@ public interface LinkRepository extends JpaRepository<Link, Long> {
      Page<Link> findByCategoryId(Long categoryId, Pageable pageable);
 
      Optional<Link> findByIdAndCategoryId(Long id, Long categoryId);
-
-
 }
