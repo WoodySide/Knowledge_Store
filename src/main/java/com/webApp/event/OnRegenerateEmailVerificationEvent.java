@@ -1,6 +1,7 @@
 package com.webApp.event;
 
 import com.webApp.model.User;
+import com.webApp.model.token.EmailVerificationToken;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;
