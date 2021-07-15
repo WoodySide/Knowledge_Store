@@ -1,7 +1,10 @@
 package com.webApp.controller;
 
 import com.webApp.exception_handling.NoSuchEntityException;
+import com.webApp.model.CustomUserDetails;
 import com.webApp.model.Title;
+import com.webApp.repository.TitleRepository;
+import com.webApp.security.CurrentUser;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,15 +20,18 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/titles")
+@RequestMapping("/api/user/")
 @Api(tags = "{Titles}")
 public class TitleController {
 
     private final TitleService titleService;
 
+    private final TitleRepository titleRepository;
+
     @Autowired
-    public TitleController(TitleService titleService) {
+    public TitleController(TitleService titleService, TitleRepository titleRepository) {
         this.titleService = titleService;
+        this.titleRepository = titleRepository;
     }
 
 
@@ -40,6 +47,12 @@ public class TitleController {
         return ResponseEntity.ok(titleService.findAllTitles());
     }
 
+
+    @GetMapping(path = "/titles")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<Title>> findTitleByUserId(@CurrentUser CustomUserDetails customUserDetails) {
+        return ResponseEntity.ok(titleRepository.findAllByUserId(customUserDetails.getId()));
+    }
 
 
     @ApiOperation(value = "Get a title by ID ")
@@ -60,7 +73,7 @@ public class TitleController {
         return titleService.saveTitle(title);
     }
 
-    @ApiOperation(value = "Delete a title by ID ")
+    @ApiOperation(value = "Delete title by ID ")
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                  @PathVariable(name = "id") Long titleId) {
@@ -73,7 +86,7 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Update a title by ID")
+    @ApiOperation(value = "Update title by ID")
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Title ID to update title object", required = true)
                                                  @PathVariable(name = "id") Long titleId,
