@@ -1,16 +1,37 @@
 package com.webApp.payload;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
 
-@Data
+import java.time.Instant;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
 public class ApiResponse {
 
-    private Boolean success;
+    private final String data;
 
-    private String message;
+    private final Boolean success;
 
-    public ApiResponse(Boolean success, String message) {
+    private final String timestamp;
+
+    private final String cause;
+
+    private final String path;
+
+    public ApiResponse(Boolean success, String data, String cause, String path) {
+        this.timestamp = Instant.now().toString();
+        this.data = data;
         this.success = success;
-        this.message = message;
+        this.cause = null;
+        this.path = null;
+    }
+
+    public ApiResponse(Boolean success, String data) {
+        this.timestamp = Instant.now().toString();
+        this.data = data;
+        this.success = success;
+        this.cause = null;
+        this.path = null;
     }
 }
