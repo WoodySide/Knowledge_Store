@@ -1,39 +1,65 @@
 package com.webApp.security;
 
-import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
+import com.webApp.model.CustomUserDetails;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class JwtTokenProvider {
 
-    @Value("${app.jwtSecret}")
-    private String jwtSecret;
+    private static final String AUTHORITIES_CLAIM = "authorities";
+    private final String jwtSecret;
+    private final long jwtExpirationInMs;
 
-    @Value("${app.jwtExpirationInMs}")
-    private int jwtExpirationInMs;
+    public JwtTokenProvider(@Value("${app.jwt.secret}") String jwtSecret, @Value("${app.jwt.expiration}") long jwtExpirationInMs) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationInMs = jwtExpirationInMs;
+    }
 
-    public String generateToken(Authentication authentication) {
-
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-
-        Date now = new Date();
-
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-
+    /**
+     * Generates a token from a principal object. Embed the refresh token in the jwt
+     * so that a new jwt can be created
+     */
+    public String generateToken(CustomUserDetails customUserDetails) {
+        Instant expiryDate = Instant.now().plusMillis(jwtExpirationInMs);
+        String authorities = getUserAuthorities(customUserDetails);
         return Jwts.builder()
-                .setSubject(Long.toString(userPrincipal.getId()))
-                .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
+                .setSubject(Long.toString(customUserDetails.getId()))
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(Date.from(expiryDate))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .claim(AUTHORITIES_CLAIM, authorities)
+                .compact();
+    }
+
+    /**
+     * Generates a token from a principal object. Embed the refresh token in the jwt
+     * so that a new jwt can be created
+     */
+    public String generateTokenFromUserId(Long userId) {
+        Instant expiryDate = Instant.now().plusMillis(jwtExpirationInMs);
+        return Jwts.builder()
+                .setSubject(Long.toString(userId))
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(Date.from(expiryDate))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
 
+    /**
+     * Returns the user id encapsulated within the token
+     */
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
@@ -43,22 +69,48 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
-    public boolean validateToken(String authToken) {
+    /**
+     * Returns the token expiration date encapsulated within the token
+     */
+    public Date getTokenExpiryFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
 
-        try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
-            return true;
-        } catch (SignatureException ex) {
-            log.error("Invalid JWT signature.");
-        } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token.");
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token.");
-        } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token.");
-        } catch (IllegalArgumentException ex) {
-            log.error("Jwt claims string is empty.");
-        }
-        return false;
+        return claims.getExpiration();
     }
+
+    /**
+     * Return the jwt expiration for the client so that they can execute
+     * the refresh token logic appropriately
+     */
+    public long getExpiryDuration() {
+        return jwtExpirationInMs;
+    }
+
+    /**
+     * Return the jwt authorities claim encapsulated within the token
+     */
+    public List<GrantedAuthority> getAuthoritiesFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        return Arrays.stream(claims.get(AUTHORITIES_CLAIM).toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Private helper method to extract user authorities.
+     */
+    private String getUserAuthorities(CustomUserDetails customUserDetails) {
+        return customUserDetails
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
 }
