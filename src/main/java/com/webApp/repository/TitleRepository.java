@@ -12,4 +12,7 @@ public interface TitleRepository extends JpaRepository<Title,Long> {
     Title findTitleByName(String titleName);
 
     List<Title> findAllByUserId(Long userId);
+
+    Title findByUserId(Long userId);
+
 }
