@@ -4,6 +4,7 @@ import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.CustomUserDetails;
 import com.webApp.model.Title;
 import com.webApp.repository.TitleRepository;
+import com.webApp.repository.UserRepository;
 import com.webApp.security.CurrentUser;
 import com.webApp.service.TitleService;
 import io.swagger.annotations.*;
@@ -20,7 +21,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/user/")
+@RequestMapping("/api/user/titles")
 @Api(tags = "{Titles}")
 public class TitleController {
 
@@ -28,11 +29,21 @@ public class TitleController {
 
     private final TitleRepository titleRepository;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public TitleController(TitleService titleService, TitleRepository titleRepository) {
+    public TitleController(TitleService titleService, TitleRepository titleRepository, UserRepository userRepository) {
         this.titleService = titleService;
         this.titleRepository = titleRepository;
+        this.userRepository = userRepository;
     }
+
+
+
+//    @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<Title>> getAllTitles() {
+//        return ResponseEntity.ok(titleService.findAllTitles());
+//    }
 
 
     @ApiOperation(value = "View a list of available titles", response = List.class)
@@ -43,22 +54,17 @@ public class TitleController {
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Title>> getAllTitles() {
-        return ResponseEntity.ok(titleService.findAllTitles());
-    }
-
-
-    @GetMapping(path = "/titles")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<Title>> findTitleByUserId(@CurrentUser CustomUserDetails customUserDetails) {
         return ResponseEntity.ok(titleRepository.findAllByUserId(customUserDetails.getId()));
     }
 
 
-    @ApiOperation(value = "Get a title by ID ")
+    @ApiOperation(value = "Get a title by user ID ")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
-                                                  @PathVariable(name = "id") Long titleId) {
+                                              @PathVariable(name = "id") Long titleId) {
         return titleService.findTitleById(titleId)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new NoSuchEntityException("Title not found: " + titleId));
@@ -68,9 +74,17 @@ public class TitleController {
     @ApiOperation(value = "Create a new title")
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('USER')")
     public Title createTitle(@ApiParam(value = "Title object store in database")
-                                             @Valid @RequestBody Title title) {
-        return titleService.saveTitle(title);
+                             @CurrentUser CustomUserDetails customUserDetails,
+                             @Valid @RequestBody Title title) {
+        return userRepository.findById(customUserDetails.getId())
+        .map(user -> {
+            title.setUser(user);
+            return titleRepository.save(title);
+        })
+        .orElseThrow(() -> new NoSuchEntityException("Title not found")); //TODO:change Exception returning
+
     }
 
     @ApiOperation(value = "Delete title by ID ")
