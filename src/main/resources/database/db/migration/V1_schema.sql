@@ -27,10 +27,13 @@ CREATE TABLE IF NOT EXISTS links (
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    username VARCHAR(15) NOT NULL,
     email VARCHAR(40) NOT NULL,
+    username VARCHAR(15) NOT NULL,
     password VARCHAR(100) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(90) NOT NULL,
+    isActive BOOLEAN,
+    isEmailVerified BOOLEAN,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
