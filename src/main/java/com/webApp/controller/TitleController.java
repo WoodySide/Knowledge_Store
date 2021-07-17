@@ -57,14 +57,14 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Get a title by user ID ")
+    @ApiOperation(value = "Get a title by ID ")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
                                               @PathVariable(name = "id") Long titleId) {
         return titleService.findTitleById(titleId)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new NoSuchEntityException("Title not found with ID " + titleId));
+                .orElseThrow(() -> new NoSuchEntityException("Title not found with ID: " + titleId));
     }
 
 
@@ -80,7 +80,7 @@ public class TitleController {
             title.setUser(user);
             return titleRepository.save(title);
         })
-        .orElseThrow(() -> new UsernameNotFoundException("User not found " + customUserDetails));
+        .orElseThrow(() -> new UsernameNotFoundException("User not found: " + customUserDetails));
 
     }
 
@@ -92,7 +92,7 @@ public class TitleController {
                                                  @CurrentUser CustomUserDetails customUserDetails) {
 
         Optional<User> user = Optional.ofNullable(userRepository.findById(customUserDetails.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" +  customUserDetails)));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " +  customUserDetails)));
 
         return titleRepository.findById(titleId)
                 .map(title -> {
@@ -100,11 +100,11 @@ public class TitleController {
                     titleRepository.delete(title);
                     return ResponseEntity.ok().build();
                 })
-        .orElseThrow(() -> new NoSuchEntityException("Title not found with ID " + titleId));
+        .orElseThrow(() -> new NoSuchEntityException("Title not found with ID: " + titleId));
     }
 
 
-    @ApiOperation(value = "Update title by ID")
+    @ApiOperation(value = "Update title")
     @PutMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Current registered user", required = true)
@@ -118,6 +118,6 @@ public class TitleController {
                     titleRepository.save(title);
                     return ResponseEntity.ok(title);
                 })
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + customUserDetails));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + customUserDetails));
     }
 }
