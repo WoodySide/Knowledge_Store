@@ -41,7 +41,7 @@ public class Title extends AuditModel {
     @JsonManagedReference
     private Set<Category> categories;
 
-    @ManyToOne(cascade = CascadeType.ALL,
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
