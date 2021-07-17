@@ -102,5 +102,4 @@ public class UserController {
         applicationEventPublisher.publishEvent(logoutSuccessEvent);
         return ResponseEntity.ok(new ApiResponse(true, "Log out successful"));
     }
-
 }
