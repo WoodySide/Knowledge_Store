@@ -1,6 +1,6 @@
 package com.webApp.controller;
 
-import com.webApp.exception_handling.ResourceNotFoundException;
+import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.CustomUserDetails;
 import com.webApp.model.Title;
 import com.webApp.model.User;
@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -63,7 +64,7 @@ public class TitleController {
                                               @PathVariable(name = "id") Long titleId) {
         return titleService.findTitleById(titleId)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResourceNotFoundException("Title", "ID", titleId));
+                .orElseThrow(() -> new NoSuchEntityException("Title not found with ID " + titleId));
     }
 
 
@@ -79,7 +80,7 @@ public class TitleController {
             title.setUser(user);
             return titleRepository.save(title);
         })
-        .orElseThrow(() -> new ResourceNotFoundException("User", "ID", customUserDetails));
+        .orElseThrow(() -> new UsernameNotFoundException("User not found " + customUserDetails));
 
     }
 
@@ -91,7 +92,7 @@ public class TitleController {
                                                  @CurrentUser CustomUserDetails customUserDetails) {
 
         Optional<User> user = Optional.ofNullable(userRepository.findById(customUserDetails.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "ID", customUserDetails)));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found" +  customUserDetails)));
 
         return titleRepository.findById(titleId)
                 .map(title -> {
@@ -99,7 +100,7 @@ public class TitleController {
                     titleRepository.delete(title);
                     return ResponseEntity.ok().build();
                 })
-        .orElseThrow(() -> new ResourceNotFoundException("Title", "ID", titleId));
+        .orElseThrow(() -> new NoSuchEntityException("Title not found with ID " + titleId));
     }
 
 
@@ -117,6 +118,6 @@ public class TitleController {
                     titleRepository.save(title);
                     return ResponseEntity.ok(title);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("User", "ID", customUserDetails));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found" + customUserDetails));
     }
 }
