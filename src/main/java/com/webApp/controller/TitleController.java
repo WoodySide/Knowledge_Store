@@ -4,10 +4,9 @@ import com.webApp.exception_handling.NoSuchEntityException;
 import com.webApp.model.CustomUserDetails;
 import com.webApp.model.Title;
 import com.webApp.model.User;
-import com.webApp.repository.TitleRepository;
-import com.webApp.repository.UserRepository;
 import com.webApp.security.CurrentUser;
 import com.webApp.service.TitleService;
+import com.webApp.service.UserService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +29,12 @@ public class TitleController {
 
     private final TitleService titleService;
 
-    private final TitleRepository titleRepository;
-
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public TitleController(TitleService titleService, TitleRepository titleRepository, UserRepository userRepository) {
+    public TitleController(TitleService titleService, UserService userService) {
         this.titleService = titleService;
-        this.titleRepository = titleRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @ApiOperation(value = "View a list of available titles", response = List.class)
@@ -53,7 +49,7 @@ public class TitleController {
     public ResponseEntity<List<Title>> findTitleByUserId(
             @ApiParam(value = "Current registered user", required = true)
             @CurrentUser CustomUserDetails customUserDetails) {
-        return ResponseEntity.ok(titleRepository.findAllByUserId(customUserDetails.getId()));
+        return ResponseEntity.ok(titleService.findAllByUserId(customUserDetails.getId()));
     }
 
 
@@ -75,10 +71,10 @@ public class TitleController {
     public Title createTitle(@ApiParam(value = "Title object store in database")
                              @CurrentUser CustomUserDetails customUserDetails,
                              @Valid @RequestBody Title title) {
-        return userRepository.findById(customUserDetails.getId())
+        return userService.findById(customUserDetails.getId())
         .map(user -> {
             title.setUser(user);
-            return titleRepository.save(title);
+            return titleService.saveTitle(title);
         })
         .orElseThrow(() -> new UsernameNotFoundException("User not found: " + customUserDetails));
 
@@ -91,13 +87,13 @@ public class TitleController {
                                                  @PathVariable(name = "id") Long titleId,
                                                  @CurrentUser CustomUserDetails customUserDetails) {
 
-        Optional<User> user = Optional.ofNullable(userRepository.findById(customUserDetails.getId())
+        Optional<User> user = Optional.ofNullable(userService.findById(customUserDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " +  customUserDetails)));
 
-        return titleRepository.findById(titleId)
+        return titleService.findByTitleId(titleId)
                 .map(title -> {
                     title.setUser(user.get());
-                    titleRepository.delete(title);
+                    titleService.deleteTitleById(title.getId());
                     return ResponseEntity.ok().build();
                 })
         .orElseThrow(() -> new NoSuchEntityException("Title not found with ID: " + titleId));
@@ -105,17 +101,25 @@ public class TitleController {
 
 
     @ApiOperation(value = "Update title")
-    @PutMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Current registered user", required = true)
                                                  @CurrentUser CustomUserDetails customUserDetails,
+                                                 @PathVariable(value = "titleId") Long titleId,
                                                  @ApiParam(value = "Update title object", required = true)
                                                  @Valid @RequestBody Title title) {
 
-        return userRepository.findById(customUserDetails.getId())
+        Optional<Title> updatedTitle = titleService.findByTitleId(titleId);
+
+        if(!updatedTitle.isPresent()) {
+            throw new NoSuchEntityException("There is not such title with ID: " + titleId);
+        }
+
+        return userService.findById(customUserDetails.getId())
                 .map(user -> {
                     title.setUser(user);
-                    titleRepository.save(title);
+                    title.setId(titleId);
+                    titleService.saveTitle(title);
                     return ResponseEntity.ok(title);
                 })
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + customUserDetails));
