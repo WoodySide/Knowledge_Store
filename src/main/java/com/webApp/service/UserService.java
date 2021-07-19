@@ -122,4 +122,6 @@ public class UserService {
         log.info("Removing refresh token associated with device [" + userDevice + "]");
         refreshTokenService.deleteById(userDevice.getRefreshToken().getId());
     }
+
+
 }
