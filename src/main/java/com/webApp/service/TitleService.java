@@ -16,7 +16,6 @@ public class TitleService {
 
     private final TitleRepository titleRepository;
 
-
     @Autowired
     public TitleService(TitleRepository titleRepository) {
         this.titleRepository = titleRepository;
@@ -44,6 +43,14 @@ public class TitleService {
 
     public Optional<Title> findByTitleId(Long titleId) {
         return titleRepository.findById(titleId);
+    }
+
+    public Optional<Title> findByUserId(Long userId) {
+        return titleRepository.findByUserId(userId);
+    }
+
+    public List<Title> findAllByUserId(Long userId) {
+        return titleRepository.findAllByUserId(userId);
     }
 
 }
