@@ -42,7 +42,7 @@ public class UserDeviceService {
         userDevice.setDeviceId(deviceInfo.getDeviceId());
         userDevice.setDeviceType(deviceInfo.getDeviceType());
         userDevice.setNotificationToken(deviceInfo.getNotificationToken());
-        userDevice.setRefreshActive(true);
+        userDevice.setIsRefreshActive(true);
         return userDevice;
     }
 
@@ -54,7 +54,7 @@ public class UserDeviceService {
         UserDevice userDevice = findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new TokenRefreshException(refreshToken.getToken(), "No device found for the matching token. Please login again"));
 
-        if (!userDevice.getRefreshActive()) {
+        if (!userDevice.getIsRefreshActive()) {
             throw new TokenRefreshException(refreshToken.getToken(), "Refresh blocked for the device. Please login through a different device");
         }
     }
