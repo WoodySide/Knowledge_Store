@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @Slf4j
-@RequestMapping("api/")
+@RequestMapping("/api/user/")
 @Api(tags = "{Categories}")
 public class CategoryController {
 
@@ -51,6 +51,7 @@ public class CategoryController {
     @GetMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> getCategoryById(@PathVariable(value = "titleId") Long titleId,
                                                     @PathVariable(value = "categoryId") Long categoryId) {
+
        Title title = titleService.findTitleById(titleId)
                .orElseThrow(() -> new NoSuchEntityException("Title id not found " + titleId));
 
@@ -62,7 +63,7 @@ public class CategoryController {
     }
 
     @ApiOperation(value = "Create a category by ID")
-    @PostMapping(path = "/titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public Category createCategory(@PathVariable(value = "titleId") Long titleId,
                                    @Valid @RequestBody Category category) {
         return titleService.findTitleById(titleId)
@@ -97,14 +98,13 @@ public class CategoryController {
                     categoryId + " to be updated in database");
         }
 
-
         category.setTitle(optionalTitle.get());
 
-        category.setId(optionalCategory.get().getId());
+        category.setId(categoryId);
 
-        categoryService.saveCategory(category);
+        Category categoryToBeSaved = categoryService.saveCategory(category);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(categoryToBeSaved);
     }
 
 

@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/titles/{titleId}")
+@RequestMapping("/api/user/titles/{titleId}")
 @Api(tags = "{Links}")
 public class LinkController {
 
@@ -49,7 +49,7 @@ public class LinkController {
         return ResponseEntity.ok(linkService.findByCategoryId(categoryId, pageable));
     }
 
-    @ApiOperation(value = "Get link id")
+    @ApiOperation(value = "Get link by ID")
     @GetMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Link> getLinkById(@PathVariable(value = "categoryId") Long categoryId,
                                             @PathVariable(value = "linkId") Long linkId) {
@@ -105,11 +105,11 @@ public class LinkController {
 
         link.setCategory(optionalCategory.get());
 
-        link.setId(optionalLink.get().getId());
+        link.setId(linkId);
 
-        linkService.saveLink(link);
+        Link linkToBeUpdated = linkService.saveLink(link);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(linkToBeUpdated);
     }
 
     @ApiOperation(value = "Delete link by ID")
@@ -117,7 +117,7 @@ public class LinkController {
     public ResponseEntity<?> deleteLinkById(@ApiParam(value = "Category ID from which category object will be deleted", required = true)
                                             @PathVariable(value = "categoryId") Long categoryId,
                                             @ApiParam(value = "Link ID from which link object will be deleted", required = true)
-                                            @PathVariable(value = "linkId") Long linkId) {
+                                            @PathVariable(value = "linkId") Long linkId, @PathVariable String titleId) {
 
         return linkService.findByCategoryIdAndLinkId(linkId, categoryId)
                 .map(link -> {
