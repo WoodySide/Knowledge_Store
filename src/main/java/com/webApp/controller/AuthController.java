@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@Api(value = "Authorization Rest API", description = "Defines endpoints that can be hit only when the user is not logged in. It's not secured by default.")
+@Api(tags = "{Authorization REST Api}", value = "Defines endpoints that can be hit only when the user is not logged in. It's not secured by default.")
 @Slf4j
 public class AuthController {
 
@@ -47,8 +47,11 @@ public class AuthController {
     /**
      * Checks is a given email is in use or not.
      */
-    @ApiOperation(value = "Checks if the given email is in use")
-    @GetMapping("/checkEmailInUse")
+    @ApiOperation(value = "Check email in use",
+                  response = ApiResponse.class,
+                  notes = "Checks if the given email is in use",
+                  httpMethod = "GET")
+    @GetMapping(path = "/checkEmailInUse")
     public ResponseEntity checkEmailInUse(@ApiParam(value = "Email id to check against") @RequestParam("email") String email) {
         Boolean emailExists = authService.emailAlreadyExists(email);
         return ResponseEntity.ok(new ApiResponse(true, emailExists.toString()));
@@ -57,8 +60,11 @@ public class AuthController {
     /**
      * Checks is a given username is in use or not.
      */
-    @ApiOperation(value = "Checks if the given username is in use")
-    @GetMapping("/checkUsernameInUse")
+    @ApiOperation(value = "Check username in user",
+                  response = ApiResponse.class,
+                  notes = "Checks if the given username is in use",
+                  httpMethod = "GET")
+    @GetMapping(path = "/checkUsernameInUse")
     public ResponseEntity checkUsernameInUse(@ApiParam(value = "Username to check against") @RequestParam(
             "username") String username) {
         Boolean usernameExists = authService.usernameAlreadyExists(username);
@@ -69,8 +75,11 @@ public class AuthController {
     /**
      * Entry point for the user log in. Return the jwt auth token and the refresh token
      */
-    @PostMapping("/login")
-    @ApiOperation(value = "Logs the user in to the system and return the auth tokens")
+    @ApiOperation(value = "User Log in",
+                  response = JwtAuthenticationResponse.class,
+                  notes = "Logs the user in to the system and return the auth tokens",
+                  httpMethod = "POST")
+    @PostMapping(path = "/login")
     public ResponseEntity authenticateUser(@ApiParam(value = "The LoginRequest payload") @Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authService.authenticateUser(loginRequest)
@@ -93,8 +102,11 @@ public class AuthController {
      * Entry point for the user registration process. On successful registration,
      * publish an event to generate email verification token
      */
-    @PostMapping("/register")
-    @ApiOperation(value = "Registers the user and publishes an event to generate the email verification")
+    @ApiOperation(value = "Register new user",
+            response = ApiResponse.class,
+            notes = "Registers the user and publishes an event to generate the email verification",
+            httpMethod = "POST")
+    @PostMapping(path = "/register")
     public ResponseEntity registerUser(@ApiParam(value = "The RegistrationRequest payload") @Valid @RequestBody RegistrationRequest registrationRequest) {
 
         return authService.registerUser(registrationRequest)
@@ -113,9 +125,12 @@ public class AuthController {
      * the reset link if the request is valid. In future the deeplink should open within
      * the app itself.
      */
-    @PostMapping("/password/resetlink")
-    @ApiOperation(value = "Receive the reset link request and publish event to send mail containing the password " +
-            "reset link")
+    @ApiOperation(value = "Reset link",
+            response = ApiResponse.class,
+            notes = "Receive the reset link request and publish event to send mail containing the password " +
+                    "reset link",
+            httpMethod = "POST")
+    @PostMapping(path = "/password/resetlink")
     public ResponseEntity resetLink(@ApiParam(value = "The PasswordResetLinkRequest payload") @Valid @RequestBody PasswordResetLinkRequest passwordResetLinkRequest) {
 
         return authService.generatePasswordResetToken(passwordResetLinkRequest)
@@ -133,10 +148,12 @@ public class AuthController {
      * Receives a new passwordResetRequest and sends the acknowledgement after
      * changing the password to the user's mail through the event.
      */
-
-    @PostMapping("/password/reset")
-    @ApiOperation(value = "Reset the password after verification and publish an event to send the acknowledgement " +
-            "email")
+    @ApiOperation(value = "Reset password",
+                 response = ApiResponse.class,
+                 notes = "Reset the password after verification and publish an event to send the acknowledgement " +
+                 "email",
+                 httpMethod = "POST")
+    @PostMapping(path = "/password/reset")
     public ResponseEntity resetPassword(@ApiParam(value = "The PasswordResetRequest payload") @Valid @RequestBody PasswordResetRequest passwordResetRequest) {
 
         return authService.resetPassword(passwordResetRequest)
@@ -153,8 +170,11 @@ public class AuthController {
      * Confirm the email verification token generated for the user during
      * registration. If token is invalid or token is expired, report error.
      */
-    @GetMapping("/registrationConfirmation")
-    @ApiOperation(value = "Confirms the email verification token that has been generated for the user during registration")
+    @ApiOperation(value = "Registration confirmation",
+                  response = ApiResponse.class,
+                  notes = "Confirms the email verification token that has been generated for the user during registration",
+                  httpMethod = "GET")
+    @GetMapping(path = "/registrationConfirmation")
     public ResponseEntity confirmRegistration(@ApiParam(value = "the token that was sent to the user email") @RequestParam("token") String token) {
 
         return authService.confirmEmailRegistration(token)
@@ -168,11 +188,14 @@ public class AuthController {
      * any attempts at generating new token from past (possibly archived/deleted)
      * tokens should fail and report an exception.
      */
-    @GetMapping("/resendRegistrationToken")
-    @ApiOperation(value = "Resend the email registration with an updated token expiry. Safe to " +
-            "assume that the user would always click on the last re-verification email and " +
-            "any attempts at generating new token from past (possibly archived/deleted)" +
-            "tokens should fail and report an exception. ")
+    @ApiOperation(value = "Resend registration token",
+                  response = ApiResponse.class,
+                  notes = "Resend the email registration with an updated token expiry. Safe to " +
+                          "assume that the user would always click on the last re-verification email and " +
+                          "any attempts at generating new token from past (possibly archived/deleted)" +
+                          "tokens should fail and report an exception",
+                  httpMethod = "GET")
+    @GetMapping(path = "/resendRegistrationToken")
     public ResponseEntity resendRegistrationToken(@ApiParam(value = "the initial token that was sent to the user email after registration") @RequestParam("token") String existingToken) {
 
         EmailVerificationToken newEmailToken = authService.recreateRegistrationToken(existingToken)
@@ -192,9 +215,12 @@ public class AuthController {
      * Refresh the expired jwt token using a refresh token for the specific device
      * and return a new token to the caller
      */
-    @PostMapping("/refresh")
-    @ApiOperation(value = "Refresh the expired jwt authentication by issuing a token refresh request and returns the" +
-            "updated response tokens")
+    @ApiOperation(value = "Refresh jwt token",
+                  response = JwtAuthenticationResponse.class,
+                  notes = "Refresh the expired jwt authentication by issuing a token refresh request and returns the" +
+                    "updated response tokens",
+                  httpMethod = "POST")
+    @PostMapping(path = "/refresh")
     public ResponseEntity refreshJwtToken(@ApiParam(value = "The TokenRefreshRequest payload") @Valid @RequestBody TokenRefreshRequest tokenRefreshRequest) {
 
         return authService.refreshJwtToken(tokenRefreshRequest)

@@ -24,7 +24,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequestMapping("/api/user/titles")
-@Api(tags = "{Titles}")
+@Api(tags = "{Titles}", value = "Titles REST Api")
 public class TitleController {
 
     private final TitleService titleService;
@@ -37,7 +37,10 @@ public class TitleController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "View a list of available titles", response = List.class)
+    @ApiOperation(value = "Get titles",
+                  response = List.class,
+                  notes = "Method returns a list of titles",
+                  httpMethod = "GET")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved list of titles"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -53,7 +56,10 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Get a title by ID ")
+    @ApiOperation(value = "Get a title by ID",
+                  response = Title.class,
+                  notes = "Method returns a title by it's ID",
+                  httpMethod = "GET")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
@@ -64,7 +70,10 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Create a new title")
+    @ApiOperation(value = "Create a new title",
+                  response = Title.class,
+                  notes = "Method creates a new title",
+                  httpMethod = "POST")
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -80,7 +89,10 @@ public class TitleController {
 
     }
 
-    @ApiOperation(value = "Delete title by ID ")
+    @ApiOperation(value = "Delete title by ID",
+                 response = Object.class,
+                 notes = "Method deletes title by it's ID",
+                 httpMethod = "DELETE")
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
@@ -100,7 +112,10 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Update title")
+    @ApiOperation(value = "Update title",
+                  response = Title.class,
+                  notes = "Method updates title by it's ID",
+                  httpMethod = "PUT")
     @PutMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Current registered user", required = true)

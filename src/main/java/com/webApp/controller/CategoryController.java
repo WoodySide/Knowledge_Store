@@ -21,7 +21,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequestMapping("/api/user/")
-@Api(tags = "{Categories}")
+@Api(tags = "{Categories}", value = "Categories REST Api")
 public class CategoryController {
 
     private final TitleService titleService;
@@ -35,7 +35,10 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @ApiOperation(value = "View a list of available categories", response = List.class)
+    @ApiOperation(value = "Get categories",
+            response = List.class,
+            notes = "Method returns a list of categories",
+            httpMethod = "GET")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved list of categories"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -47,7 +50,10 @@ public class CategoryController {
         return categoryService.findAllCategoriesByTitleId(titleId, pageable);
     }
 
-    @ApiOperation(value = "Get a category by ID")
+    @ApiOperation(value = "Get a category by ID",
+            response = Category.class,
+            notes = "Method returns a list of categories",
+            httpMethod = "GET")
     @GetMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> getCategoryById(@PathVariable(value = "titleId") Long titleId,
                                                     @PathVariable(value = "categoryId") Long categoryId) {
@@ -62,7 +68,10 @@ public class CategoryController {
        return ResponseEntity.ok().body(category);
     }
 
-    @ApiOperation(value = "Create a category by ID")
+    @ApiOperation(value = "Create a new category",
+            response = Category.class,
+            notes = "Method creates a new category",
+            httpMethod = "POST")
     @PostMapping(path = "titles/{titleId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public Category createCategory(@PathVariable(value = "titleId") Long titleId,
                                    @Valid @RequestBody Category category) {
@@ -73,7 +82,10 @@ public class CategoryController {
                 }).orElseThrow(() -> new NoSuchEntityException("Category not found"));
     }
 
-    @ApiOperation(value = "Update a category by ID")
+    @ApiOperation(value = "Update category",
+            response = Category.class,
+            notes = "Method updates a category by it's ID",
+            httpMethod = "PUT")
     @PutMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Category> updateCategoryById(@ApiParam(value = "Update category object", required = true)
                                                        @RequestBody @Valid Category category,
@@ -108,7 +120,10 @@ public class CategoryController {
     }
 
 
-    @ApiOperation(value = "Delete category by ID")
+    @ApiOperation(value = "Delete category",
+            response = List.class,
+            notes = "Method deletes a category by it's ID",
+            httpMethod = "DELETE")
     @DeleteMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteCategoryById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
                                                 @PathVariable("titleId") Long titleId,

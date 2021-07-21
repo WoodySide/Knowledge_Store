@@ -19,20 +19,28 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor
 @Builder
-@ApiModel(description = "All details about the Category")
+@ApiModel(value = "Category", description = "Category entity")
 public class Category extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @ApiModelProperty(notes = "The database generated category ID")
+    @ApiModelProperty(value = "Category ID",
+                      name = "ID",
+                      dataType = "Long",
+                      example = "10",
+                      notes = "The database generated category ID")
     private Long id;
 
     @Column(name = "name",nullable = false)
     @NotBlank(message = "Category name should not be empty")
     @Size(min = 2, max = 50, message = "Category name should be greater than 2 " +
             "and less than 50 symbols")
-    @ApiModelProperty(notes = "Category name")
+    @ApiModelProperty(value = "Category name",
+                      name = "Name",
+                      dataType = "String",
+                      example = "Videos",
+                      notes = "Category name which is going to be created by user")
     private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
@@ -51,5 +59,4 @@ public class Category extends AuditModel {
         this.id = id;
         this.name = name;
     }
-
 }

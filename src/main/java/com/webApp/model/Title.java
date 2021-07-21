@@ -19,20 +19,28 @@ import java.util.Set;
 @Setter
 @ToString
 @Builder
-@ApiModel(description = "All details about the Title")
+@ApiModel(value = "Title", description = "Title entity")
 public class Title extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @ApiModelProperty(notes = "The database generated title ID")
+    @ApiModelProperty(value = "Title ID",
+                      name = "ID",
+                      dataType = "Long",
+                      example = "10",
+                      notes = "The database generated title ID")
     private Long id;
 
     @Column(name = "name", nullable = false)
     @NotBlank(message = "Title name should not be empty")
     @Size(min = 2, max = 50, message = "Title name should be greater " +
             "than 2 and less than 50 symbols")
-    @ApiModelProperty(notes = "Name of the title")
+    @ApiModelProperty(value = "Title name",
+                      name = "Name",
+                      dataType = "String",
+                      example = "History",
+                      notes = "Name of the title which is going to be created by user")
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",

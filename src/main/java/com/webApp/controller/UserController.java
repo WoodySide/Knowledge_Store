@@ -26,7 +26,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user")
-@Api(value = "User Rest API", description = "Defines endpoints for the logged in user. It's secured by default")
+@Api(tags = "{User REST Api}", value = "Defines endpoints for the logged in user. It's secured by default")
 @Slf4j
 public class UserController {
 

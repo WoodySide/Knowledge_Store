@@ -22,7 +22,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequestMapping("/api/user/titles/{titleId}")
-@Api(tags = "{Links}")
+@Api(tags = "{Links}", value = "Links REST Api")
 public class LinkController {
 
     private final CategoryService categoryService;
@@ -36,7 +36,10 @@ public class LinkController {
         this.linkService = linkService;
     }
 
-    @ApiOperation(value = "View a list of available links", response = List.class)
+    @ApiOperation(value = "Get links",
+            response = List.class,
+            notes = "Method returns a list of links",
+            httpMethod = "GET")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved list of links"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
@@ -49,7 +52,10 @@ public class LinkController {
         return ResponseEntity.ok(linkService.findByCategoryId(categoryId, pageable));
     }
 
-    @ApiOperation(value = "Get link by ID")
+    @ApiOperation(value = "Get a link",
+            response = List.class,
+            notes = "Method gets a link by it's ID",
+            httpMethod = "GET")
     @GetMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Link> getLinkById(@PathVariable(value = "categoryId") Long categoryId,
                                             @PathVariable(value = "linkId") Long linkId) {
@@ -66,7 +72,10 @@ public class LinkController {
 
     }
 
-    @ApiOperation(value = "Create new link")
+    @ApiOperation(value = "Create link",
+            response = Link.class,
+            notes = "Method creates a new link",
+            httpMethod = "POST")
     @PostMapping(path = "categories/{categoryId}/links")
     public Link createLink(@PathVariable(value = "categoryId") Long categoryId,
                            @RequestBody @Valid Link createdLink) {
@@ -78,7 +87,10 @@ public class LinkController {
                 }).orElseThrow(() -> new NoSuchEntityException("Link not found"));
     }
 
-    @ApiOperation(value = "Update link by ID")
+    @ApiOperation(value = "Update link",
+            response = Link.class,
+            notes = "Method updates a link by it's ID",
+            httpMethod = "PUT")
     @PutMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Link> updateLinkById(@ApiParam(value = "Update link object", required = true)
                                                @RequestBody @Valid Link link,
@@ -112,7 +124,10 @@ public class LinkController {
         return ResponseEntity.ok(linkToBeUpdated);
     }
 
-    @ApiOperation(value = "Delete link by ID")
+   @ApiOperation(value = "Delete link",
+                 response = Object.class,
+                 notes = "Method deletes link by it's ID",
+                 httpMethod = "DELETE")
     @DeleteMapping(path = "categories/{categoryId}/links/{linkId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteLinkById(@ApiParam(value = "Category ID from which category object will be deleted", required = true)
                                             @PathVariable(value = "categoryId") Long categoryId,
