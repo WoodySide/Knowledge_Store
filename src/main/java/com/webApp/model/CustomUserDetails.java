@@ -48,7 +48,7 @@ public class CustomUserDetails extends User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return super.getEmailVerified();
+        return super.getIsEmailVerified();
     }
 
     @Override
