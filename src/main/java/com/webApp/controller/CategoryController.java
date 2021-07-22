@@ -119,9 +119,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryToBeSaved);
     }
 
-
     @ApiOperation(value = "Delete category",
-            response = List.class,
+            response = Object.class,
             notes = "Method deletes a category by it's ID",
             httpMethod = "DELETE")
     @DeleteMapping(path = "titles/{titleId}/categories/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
