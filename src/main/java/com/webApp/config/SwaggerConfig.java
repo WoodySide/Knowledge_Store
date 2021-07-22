@@ -1,5 +1,6 @@
 package com.webApp.config;
 
+import com.webApp.security.CurrentUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -18,10 +19,11 @@ public class SwaggerConfig {
     @Bean
     public Docket swagger() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .ignoredParameterTypes(CurrentUser.class)
                 .apiInfo(getApiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
+                .apis(RequestHandlerSelectors.basePackage("com.webApp"))
+                .paths(PathSelectors.regex("/api.*"))
                 .build();
 
     }
