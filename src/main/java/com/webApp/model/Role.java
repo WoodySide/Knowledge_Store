@@ -14,8 +14,6 @@ import java.util.Set;
 /**
  * The type Role. Defines the role and the list of users who are associated with that role
  */
-
-
 @Entity(name = "ROLE")
 @Getter
 @Setter
