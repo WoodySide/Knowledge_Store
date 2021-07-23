@@ -2,7 +2,6 @@ package com.webApp.model;
 
 import com.webApp.model.audit.AuditModel;
 import com.webApp.validation.annotation.NullOrNotBlank;
-import io.swagger.annotations.ApiModel;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
@@ -21,7 +20,6 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@ApiModel(value = "User", description = "User entity")
 public class User extends AuditModel {
 
     @Id
