@@ -4,9 +4,8 @@ import com.webApp.model.Link;
 import com.webApp.repository.LinkRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +21,8 @@ public class LinkService {
         this.linkRepository = linkRepository;
     }
 
-    public Page<Link> findByCategoryId(Long categoryId, Pageable pageable) {
-        return linkRepository.findByCategoryId(categoryId, pageable);
+    public List<Link> findByCategoryId(Long categoryId) {
+        return linkRepository.findByCategoryId(categoryId);
     }
 
     public List<Link> findAllLinks() {
