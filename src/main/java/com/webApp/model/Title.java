@@ -6,6 +6,7 @@ import com.webApp.model.audit.AuditModel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -25,22 +26,16 @@ public class Title extends AuditModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @ApiModelProperty(value = "Title ID",
-                      name = "ID",
-                      dataType = "Long",
-                      example = "10",
-                      notes = "The database generated title ID")
+    @ApiModelProperty(value = "The database generated title ID",
+                      example = "10")
     private Long id;
 
     @Column(name = "name", nullable = false)
     @NotBlank(message = "Title name should not be empty")
     @Size(min = 2, max = 50, message = "Title name should be greater " +
             "than 2 and less than 50 symbols")
-    @ApiModelProperty(value = "Title name",
-                      name = "Name",
-                      dataType = "String",
-                      example = "History",
-                      notes = "Name of the title which is going to be created by user")
+    @ApiModelProperty(value = "Name of the title which is going to be created by user",
+                      example = "History")
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",

@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@Api(tags = "{Authorization REST Api}", value = "Defines endpoints that can be hit only when the user is not logged in. It's not secured by default.")
+@Api(tags = {"Authorization REST Api"}, description = "Defines endpoints that can be hit only when the user is not logged in. It's not secured by default.")
 @Slf4j
 public class AuthController {
 

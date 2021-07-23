@@ -7,7 +7,10 @@ import com.webApp.model.User;
 import com.webApp.security.CurrentUser;
 import com.webApp.service.TitleService;
 import com.webApp.service.UserService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +27,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequestMapping("/api/user/titles")
-@Api(tags = "{Titles}", value = "Titles REST Api")
+@Tag(name = "Title", description = "Titles REST Api")
 public class TitleController {
 
     private final TitleService titleService;
@@ -37,32 +40,38 @@ public class TitleController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "Get titles",
-                  response = List.class,
-                  notes = "Method returns a list of titles",
-                  httpMethod = "GET")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved list of titles"),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+    @Operation(summary = "Find all user's titles",
+               tags = {"Title"},
+               method = "GET",
+               description =  "Method returns a list of titles",
+               responses = {
+                       @ApiResponse(responseCode = "200", description = "Successfully retrieved list of titles"),
+                       @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+                       @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
+                       @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found")
+
     })
     @GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<Title>> findTitleByUserId(
-            @ApiParam(value = "Current registered user", required = true)
-            @CurrentUser CustomUserDetails customUserDetails) {
+    public ResponseEntity<List<Title>> findAllTitlesByUserId(
+                                                             @Parameter(description = "Current registered user", required = true)
+                                                             @CurrentUser CustomUserDetails customUserDetails) {
         return ResponseEntity.ok(titleService.findAllByUserId(customUserDetails.getId()));
     }
 
 
-    @ApiOperation(value = "Get a title by ID",
-                  response = Title.class,
-                  notes = "Method returns a title by it's ID",
-                  httpMethod = "GET")
+    @Operation(summary = "Find title by it's ID",
+               tags = {"Title"},
+               method = "GET",
+               description = "Method returns title",
+               responses = {
+                       @ApiResponse(responseCode = "200", description = "Successfully retrieved title"),
+                       @ApiResponse(responseCode = "404", description = "The title you were trying to reach is not found"),
+                       @ApiResponse(responseCode = "400", description = "Id can't consists of symbols")
+               })
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Title> getTitleById(@ApiParam(value = "Title ID from which object title will be retrieved", required = true)
+    public ResponseEntity<Title> getTitleById(@Parameter(description = "Title ID from which object title will be retrieved", required = true)
                                               @PathVariable(name = "id") Long titleId) {
         return titleService.findTitleById(titleId)
                 .map(ResponseEntity::ok)
@@ -70,16 +79,21 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Create a new title",
-                  response = Title.class,
-                  notes = "Method creates a new title",
-                  httpMethod = "POST")
+    @Operation(summary = "Create a new title",
+               tags = {"Title"},
+               method = "POST",
+               description = "Method creates a new title",
+               responses = {
+                           @ApiResponse(responseCode = "200", description = "A new title was successfully created"),
+                           @ApiResponse(responseCode = "400", description = "Title name can't be null")
+            })
     @PostMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
-    public Title createTitle(@ApiParam(value = "Title object store in database")
-                             @CurrentUser CustomUserDetails customUserDetails,
-                             @Valid @RequestBody Title title) {
+    public Title createTitle(@Parameter(description = "Title object store in database",required = true)
+                             @Valid @RequestBody Title title,
+                             @Parameter(description = "Current registered user",required = true)
+                             @CurrentUser CustomUserDetails customUserDetails) {
         return userService.findById(customUserDetails.getId())
         .map(user -> {
             title.setUser(user);
@@ -89,16 +103,20 @@ public class TitleController {
 
     }
 
-    @ApiOperation(value = "Delete title by ID",
-                 response = Object.class,
-                 notes = "Method deletes title by it's ID",
-                 httpMethod = "DELETE")
+    @Operation(summary = "Delete title",
+               tags = {"Title"},
+               method = "DELETE",
+               description = "Method deletes title by it's ID",
+               responses = {
+                    @ApiResponse(responseCode = "200", description = "Title was successfully deleted"),
+                    @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found")
+            })
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteTitleById(@ApiParam(value = "Title ID from which title object will be deleted from database", required = true)
-                                                 @PathVariable(name = "id") Long titleId,
-                                                 @CurrentUser CustomUserDetails customUserDetails) {
-
+    public ResponseEntity<?> deleteTitleById(@Parameter(description = "Title ID from which title object will be deleted from database", required = true)
+                                             @PathVariable(name = "id") Long titleId,
+                                             @Parameter(description = "Current registered user", required = true)
+                                             @CurrentUser CustomUserDetails customUserDetails) {
         Optional<User> user = Optional.ofNullable(userService.findById(customUserDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " +  customUserDetails)));
 
@@ -112,16 +130,21 @@ public class TitleController {
     }
 
 
-    @ApiOperation(value = "Update title",
-                  response = Title.class,
-                  notes = "Method updates title by it's ID",
-                  httpMethod = "PUT")
+    @Operation(summary = "Updates title",
+               tags = {"Title"},
+               method = "PUT",
+               description = "Method updates titles by it's ID",
+               responses = {
+                    @ApiResponse(responseCode = "200", description = "Title was successfully updated"),
+                    @ApiResponse(responseCode = "404", description = "The title you were trying to update is not found")
+            })
     @PutMapping(path = "/{titleId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Title> updateTitleById(@ApiParam(value = "Current registered user", required = true)
+    public ResponseEntity<Title> updateTitleById(@Parameter(description = "Current registered user", required = true)
                                                  @CurrentUser CustomUserDetails customUserDetails,
+                                                 @Parameter(description = "Title ID", required = true)
                                                  @PathVariable(value = "titleId") Long titleId,
-                                                 @ApiParam(value = "Update title object", required = true)
+                                                 @Parameter(description =  "Title object to be updated", required = true)
                                                  @Valid @RequestBody Title title) {
 
         Optional<Title> updatedTitle = titleService.findByTitleId(titleId);

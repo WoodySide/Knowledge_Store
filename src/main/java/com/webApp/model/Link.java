@@ -24,29 +24,20 @@ public class Link extends AuditModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @ApiModelProperty(value = "Link ID",
-                      name = "ID",
-                      dataType = "Long",
-                      example = "10",
-                      notes = "The database generated ID")
+    @ApiModelProperty(value = "The database generated ID",
+                      example = "10")
     private Long id;
 
     @Column(name = "link_name", nullable = false)
     @Pattern(regexp = "(https://|http://).+", message = "Please use following pattern: http:// or https://")
-    @ApiModelProperty(value = "Link name",
-                      name = "Name",
-                      dataType = "String",
-                      example = "https://stackoverflow.com",
-                      notes = "Name of the link chosen by the user from the internet")
+    @ApiModelProperty(value = "Name of the link chosen by the user from the internet",
+                      example = "https://stackoverflow.com")
     private String linkName;
 
     @Column(name = "description")
     @Size(min = 0, max = 500, message = "Description should not be greater than 500 symbols")
-    @ApiModelProperty(value = "Link description",
-                      name = "Description",
-                      dataType = "String",
-                      example = "One of your favorite to go when you're stuck with something",
-                      notes = "Description about the link to give more details about the link user had added")
+    @ApiModelProperty(value = "Description about the link to give more details about the link user had added",
+                      example = "One of your favorite to resource when you're stuck with something")
     private String linkDescription;
 
     @ManyToOne(cascade = {CascadeType.DETACH,CascadeType.MERGE,

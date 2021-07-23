@@ -25,22 +25,16 @@ public class Category extends AuditModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @ApiModelProperty(value = "Category ID",
-                      name = "ID",
-                      dataType = "Long",
-                      example = "10",
-                      notes = "The database generated category ID")
+    @ApiModelProperty(value = "The database generated category ID",
+                      example = "10")
     private Long id;
 
     @Column(name = "name",nullable = false)
     @NotBlank(message = "Category name should not be empty")
     @Size(min = 2, max = 50, message = "Category name should be greater than 2 " +
             "and less than 50 symbols")
-    @ApiModelProperty(value = "Category name",
-                      name = "Name",
-                      dataType = "String",
-                      example = "Videos",
-                      notes = "Category name which is going to be created by user")
+    @ApiModelProperty(value = "Category name which is going to be created by user",
+                      example = "Videos")
     private String name;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
