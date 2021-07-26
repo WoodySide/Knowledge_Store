@@ -2,6 +2,7 @@ package com.webApp.repository;
 
 import com.webApp.model.Category;
 import com.webApp.model.Title;
+import com.webApp.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,9 +37,19 @@ public class CategoryRepositoryTest {
     @Test
     public void whenFindByName_thenReturnCategory() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title = Title.builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category.builder()
                 .name("Category")
@@ -58,9 +70,19 @@ public class CategoryRepositoryTest {
     @Test
     public void whenFindAll_thenReturnList() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title = Title.builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category.builder()
                 .name("Category")
@@ -80,9 +102,19 @@ public class CategoryRepositoryTest {
     @Test
     public void whenFindById_thenReturnCategory() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title = Title.builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category.builder()
                 .name("Category")
@@ -103,6 +135,14 @@ public class CategoryRepositoryTest {
     @Test
     public void whenDeleteCategory_thenReturnNull() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title1 = Title.builder()
                 .name("Title1")
                 .build();
@@ -114,6 +154,10 @@ public class CategoryRepositoryTest {
         Title title3 = Title.builder()
                 .name("Title3")
                 .build();
+
+        title1.setUser(user1);
+        title2.setUser(user1);
+        title3.setUser(user1);
 
         Category category1 = Category.builder()
                 .name("Category1")
@@ -147,6 +191,14 @@ public class CategoryRepositoryTest {
     @Test
     public void whenDeleteAllCategories_thenReturnNoCategories() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title1 = Title.builder()
                 .name("Title1")
                 .build();
@@ -156,7 +208,6 @@ public class CategoryRepositoryTest {
                 .build();
 
         category1.setTitle(title1);
-        testEntityManager.persist(category1);
 
         Title title2 = Title.builder()
                 .name("Title2")
@@ -166,8 +217,12 @@ public class CategoryRepositoryTest {
                 .name("Category2")
                 .build();
 
+        title1.setUser(user1);
+        title2.setUser(user1);
+
         category2.setTitle(title2);
 
+        testEntityManager.persist(category1);
         testEntityManager.persist(category2);
 
         //when
@@ -175,5 +230,65 @@ public class CategoryRepositoryTest {
 
         //then
         assertThat(categoryRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    public void whenFindByTitleId_thenReturnCategory() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title = Title.builder()
+                .name("Title")
+                .build();
+
+        title.setUser(user1);
+
+        Category category = Category.builder()
+                .name("Category")
+                .build();
+
+        category.setTitle(title);
+
+        testEntityManager.persist(category);
+
+        List<Category> foundCategory = categoryRepository.findByTitleId(title.getId());
+
+        assertThat(foundCategory).hasSizeGreaterThan(0);
+    }
+
+    @Test
+    public void whenFindByTitleIdAndCategoryId_thenReturnCategory() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title = Title.builder()
+                .name("Title")
+                .build();
+
+        title.setUser(user1);
+
+        Category category = Category.builder()
+                .name("Category")
+                .build();
+
+        category.setTitle(title);
+
+        testEntityManager.persist(category);
+
+        Optional<Category> foundCategory = categoryRepository.findByIdAndTitleId(category.getId(),title.getId());
+
+        assertThat(foundCategory.get()).isEqualTo(category);
     }
 }
