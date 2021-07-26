@@ -7,13 +7,12 @@ import com.webApp.model.CustomUserDetails;
 import com.webApp.payload.ApiResponse;
 import com.webApp.payload.LogOutRequest;
 import com.webApp.payload.UpdatePasswordRequest;
-import com.webApp.repository.TitleRepository;
 import com.webApp.security.CurrentUser;
 import com.webApp.service.AuthService;
 import com.webApp.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,8 +25,8 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user")
-@Api(tags = {"User REST Api"}, description = "Defines endpoints for the logged in user. It's secured by default")
 @Slf4j
+@Tag(name = "User", description = "Defines endpoints for the logged in user. It's secured by default")
 public class UserController {
 
     private final AuthService authService;
@@ -36,22 +35,23 @@ public class UserController {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final TitleRepository titleRepository;
-
     @Autowired
-    public UserController(AuthService authService, UserService userService, ApplicationEventPublisher applicationEventPublisher, TitleRepository titleRepository) {
+    public UserController(AuthService authService, UserService userService, ApplicationEventPublisher applicationEventPublisher) {
         this.authService = authService;
         this.userService = userService;
         this.applicationEventPublisher = applicationEventPublisher;
-        this.titleRepository = titleRepository;
     }
 
     /**
      * Gets the current user profile of the logged in user
      */
-    @GetMapping("/me")
+
+    @Operation(summary = "Get user profile",
+               tags = "User",
+               method = "GET",
+               description = "Returns the current user profile")
+    @GetMapping(path = "/me")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation(value = "Returns the current user profile")
     public ResponseEntity getUserProfile(@CurrentUser CustomUserDetails currentUser) {
         log.info(currentUser.getEmail() + " has role: " + currentUser.getRoles());
         return ResponseEntity.ok("Hello. This is about me");
@@ -60,9 +60,12 @@ public class UserController {
     /**
      * Returns all admins in the system. Requires Admin access
      */
-    @GetMapping("/admins")
+    @Operation(summary = "Get admin profile",
+               tags = "User",
+               method = "GET",
+               description = "Returns the list of configured admins. Requires ADMIN Access")
+    @GetMapping(path = "/admins")
     @PreAuthorize("hasRole('ADMIN')")
-    @ApiOperation(value = "Returns the list of configured admins. Requires ADMIN Access")
     public ResponseEntity getAllAdmins() {
         log.info("Inside secured resource with admin");
         return ResponseEntity.ok("Hello. This is about admins");
@@ -71,10 +74,14 @@ public class UserController {
     /**
      * Updates the password of the current logged in user
      */
-    @PostMapping("/password/update")
+
+    @Operation(summary = "Update user password",
+               tags = "User",
+               method = "POST",
+               description = "Allows the user to change his password once logged in by supplying the correct current " +
+                       "password")
+    @PostMapping(path = "/password/update")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation(value = "Allows the user to change his password once logged in by supplying the correct current " +
-            "password")
     public ResponseEntity updateUserPassword(@CurrentUser CustomUserDetails customUserDetails,
                                              @ApiParam(value = "The UpdatePasswordRequest payload") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest) {
 
@@ -91,8 +98,11 @@ public class UserController {
      * Log the user out from the app/device. Release the refresh token associated with the
      * user device.
      */
-    @PostMapping("/logout")
-    @ApiOperation(value = "Logs the specified user device and clears the refresh tokens associated with it")
+    @Operation(summary = "Logout user",
+               tags = "User",
+               method = "POST",
+               description = "Logs the specified user device and clears the refresh tokens associated with it")
+    @PostMapping(path = "/logout")
     public ResponseEntity logoutUser(@CurrentUser CustomUserDetails customUserDetails,
                                      @ApiParam(value = "The LogOutRequest payload") @Valid @RequestBody LogOutRequest logOutRequest) {
         userService.logoutUser(customUserDetails, logOutRequest);
