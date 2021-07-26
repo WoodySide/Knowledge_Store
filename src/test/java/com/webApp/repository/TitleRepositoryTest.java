@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +28,7 @@ public class TitleRepositoryTest {
 
     @Test
     public void whenRepositoryIsEmpty_thenReturnNull() {
+
         Iterable<Title> titles = titleRepository.findAll();
 
         assertThat(titles).isEmpty();
@@ -204,5 +206,29 @@ public class TitleRepositoryTest {
         testEntityManager.persist(title3);
 
         assertThat(titleRepository.findAllByUserId(user1.getId())).hasSize(3);
+    }
+
+    @Test
+    public void whenFindTitleByUserId_thenReturnTitle() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title1 = Title.builder()
+                .name("Title1")
+                .build();
+
+        title1.setUser(user1);
+
+        testEntityManager.persist(title1);
+
+        Optional<Title> foundTitle = titleRepository.findByUserId(user1.getId());
+
+        assertThat(foundTitle.get()).isEqualTo(title1);
     }
 }

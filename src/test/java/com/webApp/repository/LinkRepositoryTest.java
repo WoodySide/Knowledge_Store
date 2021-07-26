@@ -4,6 +4,7 @@ package com.webApp.repository;
 import com.webApp.model.Category;
 import com.webApp.model.Link;
 import com.webApp.model.Title;
+import com.webApp.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,10 +40,21 @@ public class LinkRepositoryTest {
     @Test
     public void whenFindByName_thenReturnLink() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+
         Title title = Title
                 .builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category
                 .builder()
@@ -68,10 +81,20 @@ public class LinkRepositoryTest {
     @Test
     public void whenFindAll_thenReturnList() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title = Title
                 .builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category
                 .builder()
@@ -97,10 +120,21 @@ public class LinkRepositoryTest {
 
     public void whenFindById_thenReturnLink() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+
         Title title = Title
                 .builder()
                 .name("Title")
                 .build();
+
+        title.setUser(user1);
 
         Category category = Category
                 .builder()
@@ -127,6 +161,14 @@ public class LinkRepositoryTest {
     @Test
     public void whenDeleteLink_thenReturnNull() {
 
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title1 = Title
                 .builder()
                 .name("Title1")
@@ -141,6 +183,10 @@ public class LinkRepositoryTest {
                 .builder()
                 .name("Title3")
                 .build();
+
+        title1.setUser(user1);
+        title2.setUser(user1);
+        title3.setUser(user1);
 
         Category category1 = Category
                 .builder()
@@ -194,6 +240,15 @@ public class LinkRepositoryTest {
 
     @Test
     public void whenDeleteAllLinks_thenReturnNoLinks() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
         Title title1 = Title
                 .builder()
                 .name("Title1")
@@ -208,6 +263,10 @@ public class LinkRepositoryTest {
                 .builder()
                 .name("Title3")
                 .build();
+
+        title1.setUser(user1);
+        title2.setUser(user1);
+        title3.setUser(user1);
 
         Category category1 = Category
                 .builder()
@@ -255,6 +314,81 @@ public class LinkRepositoryTest {
 
         //then
         assertThat(linkRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    public void whenFindLinkByCategoryId_thenReturnLink() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title = Title
+                .builder()
+                .name("Title")
+                .build();
+
+        title.setUser(user1);
+
+        Category category = Category
+                .builder()
+                .name("Category")
+                .build();
+
+        Link link = Link
+                .builder()
+                .linkName("http://LinkName")
+                .build();
+
+        category.setTitle(title);
+        link.setCategory(category);
+
+        testEntityManager.persist(link);
+
+        List<Link> foundLinks = linkRepository.findByCategoryId(category.getId());
+
+        assertThat(foundLinks).hasSizeGreaterThan(0);
+    }
+
+    @Test
+    public void whenFindByCategoryIdAndLinkId_thenReturnLink() {
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title = Title
+                .builder()
+                .name("Title")
+                .build();
+
+        title.setUser(user1);
+
+        Category category = Category
+                .builder()
+                .name("Category")
+                .build();
+
+        Link link = Link
+                .builder()
+                .linkName("http://LinkName")
+                .build();
+
+        category.setTitle(title);
+        link.setCategory(category);
+
+        testEntityManager.persist(link);
+
+        Optional<Link> foundLink = linkRepository.findByIdAndCategoryId(category.getId(), link.getId());
+
+        assertThat(foundLink.get()).isEqualTo(link);
     }
 }
 
