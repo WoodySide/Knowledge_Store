@@ -1,5 +1,6 @@
 package com.webApp.service;
 
+import com.webApp.model.Category;
 import com.webApp.model.Link;
 import com.webApp.repository.LinkRepository;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class LinkServiceTest {
     public void whenFindAllLinks_thenReturnListOfLinks() {
         //given
         Link link = Link.builder()
-                .linkName("https://habr.com/ru/post/471140/")
+                .linkName("https://link")
                 .build();
 
         List<Link> expectedLinks = Collections.singletonList(link);
@@ -45,16 +46,16 @@ public class LinkServiceTest {
     @Test
     public void whenFindLinkById_thenReturnLink() {
         when(linkRepository.findById(1L)).
-                thenReturn(java.util.Optional.of(new Link(1L, "https://habr.com/ru/post/471140/")));
+                thenReturn(java.util.Optional.of(new Link(1L, "https://link")));
 
         Optional<Link> link = linkService.findLinkById(1L);
 
-        assertEquals("https://habr.com/ru/post/471140/", link.get().getLinkName());
+        assertEquals("https://link", link.get().getLinkName());
     }
 
     @Test
     public void whenCreateLink_thenReturnCreatedOne() {
-        Link linkToBeCreated = new Link(1L, "https://habr.com/ru/post/471140/");
+        Link linkToBeCreated = new Link(1L, "https://link");
 
         linkService.saveLink(linkToBeCreated);
 
@@ -63,10 +64,65 @@ public class LinkServiceTest {
 
     @Test
     public void whenDeleteLink_theReturnNothing() {
-        Link linkToBeDeleted = new Link(1L, "https://habr.com/ru/post/471140/");
+        Link linkToBeDeleted = new Link(1L, "https://link");
 
         linkService.deleteLinkById(linkToBeDeleted.getId());
 
         verify(linkRepository, times(1)).deleteById(linkToBeDeleted.getId());
+    }
+
+    @Test
+    public void whenFindAllLinksByCategoryId_thenReturnListOfLinks() {
+
+        Category category = Category.builder()
+                .name("Category")
+                .build();
+
+        Link link1 = Link.builder()
+                .linkName("https://link1")
+                .category(category)
+                .build();
+        Link link2 = Link.builder()
+                .linkName("https://link2")
+                .build();
+        Link link3 = Link.builder()
+                .linkName("https://link3")
+                .build();
+
+        List<Link> expectedLinks = List.of(link1,link2,link3);
+
+        expectedLinks.forEach(l -> l.setCategory(category));
+
+        doReturn(expectedLinks).when(linkRepository).findByCategoryId(category.getId());
+
+        //when
+        List<Link> actualLinks = linkService.findByCategoryId(category.getId());
+
+        //then
+        assertThat(actualLinks).isEqualTo(expectedLinks);
+
+    }
+
+    @Test
+    public void whenFindByCategoryIdAndByLinkId_thenReturnLink() {
+
+        Category category = Category.builder()
+                .name("Category")
+                .build();
+
+        Link link1 = Link.builder()
+                .linkName("https://link1")
+                .category(category)
+                .build();
+
+        link1.setCategory(category);
+
+
+        when(linkRepository.findByIdAndCategoryId(link1.getId(),category.getId())).
+                thenReturn(java.util.Optional.of(link1));
+
+        Optional<Link> link = linkService.findByCategoryIdAndLinkId(link1.getId(),category.getId());
+
+        assertEquals("https://link1", link.get().getLinkName());
     }
 }

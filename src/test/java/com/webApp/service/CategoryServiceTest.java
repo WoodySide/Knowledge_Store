@@ -1,6 +1,8 @@
 package com.webApp.service;
 
 import com.webApp.model.Category;
+import com.webApp.model.Title;
+import com.webApp.model.User;
 import com.webApp.repository.CategoryRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,5 +71,36 @@ public class CategoryServiceTest {
         categoryService.deleteCategoryById(categoryToBeDeleted.getId());
 
         verify(categoryRepository, times(1)).deleteById(categoryToBeDeleted.getId());
+    }
+
+    @Test
+    public void whenFindByTitleIdAndCategoryId_thenReturnCategory() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title1 = Title.builder()
+                .id(1L)
+                .name("Title1")
+                .build();
+
+        Category category = Category.builder()
+                .name("Category")
+                .build();
+
+        title1.setUser(user1);
+        category.setTitle(title1);
+
+        when(categoryRepository.findByIdAndTitleId(category.getId(), title1.getId())).
+                thenReturn(java.util.Optional.of(category));
+
+        Optional<Category> foundCategory = categoryService.findByTitleIdAndCategoryId(category.getId(),title1.getId());
+
+        assertEquals("Category", foundCategory.get().getName());
     }
 }

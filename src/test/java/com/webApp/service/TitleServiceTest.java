@@ -1,6 +1,7 @@
 package com.webApp.service;
 
 import com.webApp.model.Title;
+import com.webApp.model.User;
 import com.webApp.repository.TitleRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,12 +65,17 @@ public class TitleServiceTest {
     @Test
     public void whenFindTitleById_thenReturnTitle() {
 
+        Title title = Title
+                .builder()
+                .name("Title")
+                .build();
+
         when(titleRepository.findById(1L))
-                .thenReturn(Optional.of(new Title(1L, "Title")));
+                .thenReturn(Optional.of(title));
 
-        Optional<Title> title = titleService.findTitleById(1L);
+        Optional<Title> foundTitle = titleService.findTitleById(1L);
 
-        assertEquals("Title", title.get().getName());
+        assertEquals("Title", foundTitle.get().getName());
     }
 
     @Test
@@ -79,10 +85,50 @@ public class TitleServiceTest {
                 .id(1L)
                 .name("Title")
                 .build();
-
         titleService.deleteTitleById(titleToBeDeleted.getId());
 
         verify(titleRepository, times(1))
                 .deleteById(titleToBeDeleted.getId());
+    }
+
+    @Test
+    public void whenFindAllTitlesByUserId_returnListOfTitle() {
+
+        User user1 = User.builder()
+                .username("username")
+                .email("alex@gmail.com")
+                .password("secret")
+                .active(true)
+                .isEmailVerified(true)
+                .build();
+
+        Title title1 = Title.builder()
+                .id(1L)
+                .name("Title1")
+                .build();
+
+        Title title2 = Title.builder()
+                .id(2L)
+                .name("Title2")
+                .build();
+
+        Title title3 = Title.builder()
+                .id(3L)
+                .name("Title3")
+                .build();
+
+
+        List<Title> expectedTitles = List.of(title1,title2,title3);
+
+        expectedTitles.forEach(t -> t.setUser(user1));
+
+        doReturn(expectedTitles).when(titleRepository).findAllByUserId(user1.getId());
+
+        //when
+        List<Title> actualTitles = titleService.findAllByUserId(user1.getId());
+
+        //then
+        assertThat(actualTitles).isEqualTo(expectedTitles);
+
     }
 }
