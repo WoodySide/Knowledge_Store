@@ -120,7 +120,7 @@ public class TitleController {
         Optional<User> user = Optional.ofNullable(userService.findById(customUserDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " +  customUserDetails)));
 
-        return titleService.findByTitleId(titleId)
+        return titleService.findTitleById(titleId)
                 .map(title -> {
                     title.setUser(user.get());
                     titleService.deleteTitleById(title.getId());
@@ -147,7 +147,7 @@ public class TitleController {
                                                  @Parameter(description =  "Title object to be updated", required = true)
                                                  @Valid @RequestBody Title title) {
 
-        Optional<Title> updatedTitle = titleService.findByTitleId(titleId);
+        Optional<Title> updatedTitle = titleService.findTitleById(titleId);
 
         if(!updatedTitle.isPresent()) {
             throw new NoSuchEntityException("There is not such title with ID: " + titleId);
