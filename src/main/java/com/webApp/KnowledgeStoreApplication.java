@@ -9,8 +9,8 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EntityScan(basePackageClasses = {
-		KnowledgeStoreApplication.class,
-		Jsr310JpaConverters.class
+		    KnowledgeStoreApplication.class,
+		    Jsr310JpaConverters.class
 })
 public class KnowledgeStoreApplication {
 
