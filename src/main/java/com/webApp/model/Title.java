@@ -39,7 +39,7 @@ public class Title extends AuditModel {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "title",
-             fetch = FetchType.LAZY, orphanRemoval = true)
+             fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonManagedReference
     private Set<Category> categories;
