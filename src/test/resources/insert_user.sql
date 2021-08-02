@@ -5,4 +5,4 @@ INSERT INTO public.users(user_id, created_at,
                          is_email_verified,
                          last_name, password, username)
 VALUES (1, current_timestamp, current_timestamp, TRUE,
-        'abc@gmail.com', 'Alex', TRUE, 'Ivanov', 'secret', 'alex123')
+        'alexwoodyside@gmail.com', 'Alex', TRUE, 'Ivanov', '$2a$10$7zM6arzlLK/wn4hqPFn1EecmNdQkLe4GdEFLBqsZhIIZzvXuUq6iS', 'bobby')

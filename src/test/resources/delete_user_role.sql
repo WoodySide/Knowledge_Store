@@ -1,1 +1,1 @@
-DELETE FROM public.role
+DELETE FROM public.user_authority
