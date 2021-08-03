@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -108,7 +109,7 @@ public class AuthController {
                tags = "Authorization",
                method = "POST",
                description = "Method registers the  user and publishes an event to generate the email verification")
-    @PostMapping(path = "/register")
+    @PostMapping(path = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerUser(@Parameter(description = "The RegistrationRequest payload", required = true)
                                        @Valid @RequestBody RegistrationRequest registrationRequest) {
 
