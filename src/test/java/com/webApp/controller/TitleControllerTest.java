@@ -173,6 +173,23 @@ public class TitleControllerTest {
                 .andExpect(status().isOk());
     }
 
+    private void deleteTitleWithInvalidJWTToken(Integer id) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + id)
+                        .header(HttpHeaders.AUTHORIZATION, "whateverwhateveryotarenotsurewhatitis")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void deleteTitleWithNullJWTToken(Integer id) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + id)
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
     private void getTitleAfterUpdate(Integer id, String name) throws Exception {
         mockMvc
                 .perform(
@@ -333,6 +350,16 @@ public class TitleControllerTest {
     @Test
     public void whenUpdateTitleWithEmptyBody_thenReturn400() throws Exception {
         updateTitleWithEmptyBody(130);
+    }
+
+    @Test
+    public void whenDeleteTitleWithInvalidJWTToken_thenReturnIsNotUnauthorized() throws Exception {
+        deleteTitleWithInvalidJWTToken(130);
+    }
+
+    @Test
+    public void whenDeleteTitleWithNullJWTToken_thenReturnIsNotUnauthorized() throws Exception {
+        deleteTitleWithNullJWTToken(130);
     }
 }
 
