@@ -35,7 +35,7 @@ public class User extends AuditModel {
     private String email;
 
     @Column(name = "username", unique = true)
-    @NotBlank(message = "Username can not be empty")
+    @NullOrNotBlank(message = "Username can not be empty")
     @Size(max = 20)
     private String username;
 
