@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql({"/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
         "/insert_role.sql", "/insert_user.sql", "/insert_user_role.sql"})
 @TestPropertySource(locations = "classpath:application.properties")
+@ActiveProfiles(profiles = "test")
 public class TitleControllerTest {
 
     public static final String TITLE_URL = "http://localhost:8080/api/user/titles";
@@ -137,8 +139,8 @@ public class TitleControllerTest {
                 .perform(
                         post(TITLE_URL + "/")
                                 .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                            .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\n" +
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
                                 "    \"name\": \"" + title + "\"\n" +
                                 "}")
                 )
