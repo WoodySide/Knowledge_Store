@@ -1,5 +1,7 @@
 package com.webApp.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.webApp.model.DeviceType;
 import com.webApp.payload.DeviceInfo;
 import org.json.JSONObject;
@@ -32,6 +34,7 @@ public class AuthenticationControllerTest {
 
     private static final String LOGIN_URL = "http://localhost:8080/api/auth/login";
     private static final String AUTH_URL = "http://localhost:8080/api/auth";
+    private static final String PASSWORD_RESET = "http://localhost:8080/api/auth/password";
 
     private String getJWTToken() throws Exception {
         String email = "alexwoodyside@gmail.com";
@@ -47,11 +50,11 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "    \"email\": \"" + email + "\",\n" +
-                                        "    \"password\": \"" + password+ "\",\n" +
+                                        "    \"password\": \"" + password + "\",\n" +
                                         "    \"deviceInfo\": {\n" +
-                                        "        \"deviceId\": \""+ info.getDeviceId() + "\",\n" +
-                                        "        \"deviceType\": \"" + info.getDeviceType() +"\",\n" +
-                                        "        \"notificationToken\": \"" + info.getNotificationToken() +"\"\n" +
+                                        "        \"deviceId\": \"" + info.getDeviceId() + "\",\n" +
+                                        "        \"deviceType\": \"" + info.getDeviceType() + "\",\n" +
+                                        "        \"notificationToken\": \"" + info.getNotificationToken() + "\"\n" +
                                         "    }\n" +
                                         "}")
 
@@ -69,6 +72,8 @@ public class AuthenticationControllerTest {
         return "Bearer " + jsonObject.get("accessToken");
     }
 
+
+
     private void getJWTTokenWithIncorrectPassword() throws Exception {
         String email = "alexwoodyside@gmail.com";
         String password = "notsupersecretpasswordatall";
@@ -79,14 +84,14 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "    \"email\": \"" + email + "\",\n" +
-                                        "    \"password\": \"" + password+ "\",\n" +
+                                        "    \"password\": \"" + password + "\",\n" +
                                         "    \"deviceInfo\": {\n" +
-                                        "        \"deviceId\": \""+ info.getDeviceId() + "\",\n" +
-                                        "        \"deviceType\": \"" + info.getDeviceType() +"\",\n" +
-                                        "        \"notificationToken\": \"" + info.getNotificationToken() +"\"\n" +
+                                        "        \"deviceId\": \"" + info.getDeviceId() + "\",\n" +
+                                        "        \"deviceType\": \"" + info.getDeviceType() + "\",\n" +
+                                        "        \"notificationToken\": \"" + info.getNotificationToken() + "\"\n" +
                                         "    }\n" +
                                         "}")
                 )
@@ -108,11 +113,11 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "    \"email\": \"" + email + "\",\n" +
-                                        "    \"password\": \"" + password+ "\",\n" +
+                                        "    \"password\": \"" + password + "\",\n" +
                                         "    \"deviceInfo\": {\n" +
-                                        "        \"deviceId\": \""+ info.getDeviceId() + "\",\n" +
-                                        "        \"deviceType\": \"" + info.getDeviceType() +"\",\n" +
-                                        "        \"notificationToken\": \"" + info.getNotificationToken() +"\"\n" +
+                                        "        \"deviceId\": \"" + info.getDeviceId() + "\",\n" +
+                                        "        \"deviceType\": \"" + info.getDeviceType() + "\",\n" +
+                                        "        \"notificationToken\": \"" + info.getNotificationToken() + "\"\n" +
                                         "    }\n" +
                                         "}")
                 )
@@ -125,7 +130,7 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get(AUTH_URL + "/" + "checkEmailInUse?")
-                        .param("email", email)
+                                .param("email", email)
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(data));
@@ -136,7 +141,7 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get(AUTH_URL + "/" + "checkEmailInUse?")
-                        .param("email", email)
+                                .param("email", email)
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(data));
@@ -147,7 +152,7 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get(AUTH_URL + "/" + "checkUsernameInUse?")
-                        .param("username", username)
+                                .param("username", username)
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(data));
@@ -158,14 +163,14 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         get(AUTH_URL + "/" + "checkUsernameInUse?")
-                        .param("username", username)
+                                .param("username", username)
                 )
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(data));
     }
 
     private void registerUser() throws Exception {
-        String email = "whatever@gmai.com";
+        String email = "alexwoodyside@gmai.com";
         String username = "alex";
         String password = "secret12345";
         String registerAsAsmin = "false";
@@ -173,12 +178,12 @@ public class AuthenticationControllerTest {
         mockMvc
                 .perform(
                         post(AUTH_URL + "/" + "register")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "   \"email\": \"" + email + "\",\n" +
-                                        "   \"username\": \""+ username + "\",\n" +
-                                        "   \"password\": \""+ password + "\",\n" +
-                                        "   \"registerAsAdmin\": " + registerAsAsmin+ "\n" +
+                                        "   \"username\": \"" + username + "\",\n" +
+                                        "   \"password\": \"" + password + "\",\n" +
+                                        "   \"registerAsAdmin\": " + registerAsAsmin + "\n" +
                                         "}")
                 )
                 .andExpect(status().isOk())
@@ -196,8 +201,8 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "   \"email\": \"" + email + "\",\n" +
-                                        "   \"username\": \""+ username + "\",\n" +
-                                        "   \"password\": \""+ password + "\",\n" +
+                                        "   \"username\": \"" + username + "\",\n" +
+                                        "   \"password\": \"" + password + "\",\n" +
                                         "}")
                 )
                 .andExpect(status().isBadRequest())
@@ -205,7 +210,7 @@ public class AuthenticationControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value("false"));
     }
 
-    public void registerUserWithNoPassword() throws Exception {
+    private  void registerUserWithNoPassword() throws Exception {
         String email = "whatever@gmai.com";
         String username = "alex";
         String registerAsAsmin = "false";
@@ -216,8 +221,8 @@ public class AuthenticationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
                                         "   \"email\": \"" + email + "\",\n" +
-                                        "   \"username\": \""+ username + "\",\n" +
-                                        "   \"registerAsAdmin\": " + registerAsAsmin+ "\n" +
+                                        "   \"username\": \"" + username + "\",\n" +
+                                        "   \"registerAsAdmin\": " + registerAsAsmin + "\n" +
                                         "}")
                 )
                 .andExpect(status().isBadRequest())
@@ -225,7 +230,99 @@ public class AuthenticationControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value("false"));
     }
 
-    public void registerUserWithNoUserData() throws Exception {
+    private  void registerUserWithAlreadyUsedMail() throws Exception {
+        String email = "alexwoodyside@gmai.com";
+        String username = "alex";
+        String password = "secret12345";
+        String registerAsAsmin = "false";
+
+        mockMvc
+                .perform(
+                        post(AUTH_URL + "/" + "register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "   \"email\": \"" + email + "\",\n" +
+                                        "   \"username\": \"" + username + "\",\n" +
+                                        "   \"password\": \"" + password + "\",\n" +
+                                        "   \"registerAsAdmin\": " + registerAsAsmin + "\n" +
+                                        "}")
+                )
+                .andExpect(status().isConflict());
+
+    }
+
+    private void sendResetLinkToMail() throws Exception {
+        String email = "alexwoodyside@gmail.com";
+        String password = "notsupersecretpasswordatall";
+        DeviceInfo info = new DeviceInfo();
+        info.setDeviceId("123456");
+        info.setDeviceType(DeviceType.DEVICE_TYPE_ANDROID);
+        info.setNotificationToken("78910");
+        mockMvc
+                .perform(
+                        post(PASSWORD_RESET + "/" + "resetlink")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"email\": \"" + email + "\",\n" +
+                                        "    \"password\": \"" + password + "\",\n" +
+                                        "    \"deviceInfo\": {\n" +
+                                        "        \"deviceId\": \"" + info.getDeviceId() + "\",\n" +
+                                        "        \"deviceType\": \"" + info.getDeviceType() + "\",\n" +
+                                        "        \"notificationToken\": \"" + info.getNotificationToken() + "\"\n" +
+                                        "    }\n" +
+                                        "}")
+                )
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("Password reset link sent successfully"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value("true"));
+
+    }
+    public void refreshToken() throws Exception {
+        String refreshToken = getRefreshTokenFromJWT();
+        mockMvc
+                .perform(
+                        post(AUTH_URL + "/" + "refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"refreshToken\": \"" + refreshToken + "\"\n" +
+                                        "}\n")
+                )
+                .andExpect(status().isOk());
+    }
+
+    private  void refreshTokenWithNoRefreshToken() throws Exception {
+        mockMvc
+                .perform(
+                        post(AUTH_URL + "/" + "refresh")
+
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private  void refreshInvalidRefreshToken() throws Exception {
+
+        mockMvc
+                .perform(
+                        post(AUTH_URL + "/" + "refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"refreshToken\": \"" + "814f3208-ff61-4a50-83z2-3b230f45qqf73" + "\"\n" +
+                                        "}\n")
+                )
+                .andExpect(status().isExpectationFailed());
+    }
+
+    private  void sendResetLinkWithEmptyBody() throws Exception {
+        mockMvc
+                .perform(
+                        post(PASSWORD_RESET + "/" + "resetlink")
+
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+
+    private void registerUserWithNoUserData() throws Exception {
         mockMvc
                 .perform(
                         post(AUTH_URL + "/" + "register")
@@ -233,6 +330,47 @@ public class AuthenticationControllerTest {
                 )
                 .andExpect(status().isBadRequest());
     }
+
+
+    private String getRefreshTokenFromJWT() throws Exception {
+        String email = "alexwoodyside@gmail.com";
+        String password = "secret123";
+        DeviceInfo info = new DeviceInfo();
+        info.setDeviceId("123456");
+        info.setDeviceType(DeviceType.DEVICE_TYPE_ANDROID);
+        info.setNotificationToken("78910");
+
+        String response = mockMvc
+                .perform(
+                        post(LOGIN_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"email\": \"" + email + "\",\n" +
+                                        "    \"password\": \"" + password + "\",\n" +
+                                        "    \"deviceInfo\": {\n" +
+                                        "        \"deviceId\": \"" + info.getDeviceId() + "\",\n" +
+                                        "        \"deviceType\": \"" + info.getDeviceType() + "\",\n" +
+                                        "        \"notificationToken\": \"" + info.getNotificationToken() + "\"\n" +
+                                        "    }\n" +
+                                        "}")
+
+                )
+                .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken")
+                        .isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tokenType").isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.expiryDuration").value(900000))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Gson gson = new Gson();
+
+        JsonObject jsonObjects = gson.fromJson(response, JsonObject.class);
+
+        return jsonObjects.get("refreshToken").getAsString();
+    }
+
 
     @Test
     public void whenGetToken_ReturnCurrentJWTToken() throws Exception {
@@ -288,4 +426,41 @@ public class AuthenticationControllerTest {
     public void whenRegisterUserWithNoData_thenReturn400() throws Exception {
         registerUserWithNoUserData();
     }
- }
+
+    @Test
+    public void whenRegisterUserWithAlreadyUserMail_thenReturnConflict() throws Exception {
+        registerUser();
+        registerUserWithAlreadyUsedMail();
+    }
+
+    @Test
+    public void whenResetLinkNeeded_thenSendItToEmail() throws Exception {
+        sendResetLinkToMail();
+    }
+
+    @Test
+    public void whenResetLinkNeededButWithEmptyBody_then400() throws Exception {
+        sendResetLinkWithEmptyBody();
+    }
+
+    @Test
+    public void whenRefreshToken_thenReturnRefreshedOne() throws Exception {
+        refreshToken();
+    }
+
+    @Test
+    public void whenGetRefreshTokenFromJwtToken_thenReturnRefreshToken() throws Exception {
+        getRefreshTokenFromJWT();
+    }
+
+    @Test
+    public void whenRefreshTokenWithNoToken_thenReturn400() throws Exception {
+        refreshTokenWithNoRefreshToken();
+    }
+
+    @Test
+    public void whenRefreshTokenIsInvalid_thenReturn400() throws Exception {
+        refreshInvalidRefreshToken();
+    }
+}
+
