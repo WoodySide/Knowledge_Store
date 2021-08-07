@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql({"/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
+@Sql({"/delete_password_reset_token.sql", "/delete_verification_token.sql", "/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
         "/insert_role.sql", "/insert_user.sql", "/insert_user_role.sql"})
 @ActiveProfiles(profiles = "test")
 public class AuthenticationControllerTest {
@@ -96,8 +96,6 @@ public class AuthenticationControllerTest {
                                         "}")
                 )
                 .andExpect(status().isUnauthorized());
-
-
     }
 
     private void getTokenWithIncorrectUsernameAndPassword() throws Exception {
@@ -192,8 +190,8 @@ public class AuthenticationControllerTest {
     }
 
     private void registerUserWithNoRole() throws Exception {
-        String email = "whatever@gmai.com";
-        String username = "alex";
+        String email = "whatever10@gmai.com";
+        String username = "tommy";
         String password = "secret12345";
         mockMvc
                 .perform(
@@ -202,7 +200,7 @@ public class AuthenticationControllerTest {
                                 .content("{\n" +
                                         "   \"email\": \"" + email + "\",\n" +
                                         "   \"username\": \"" + username + "\",\n" +
-                                        "   \"password\": \"" + password + "\",\n" +
+                                        "   \"password\": \"" + password + "\"\n" +
                                         "}")
                 )
                 .andExpect(status().isBadRequest())
