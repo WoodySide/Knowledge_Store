@@ -37,10 +37,10 @@ public class TitleControllerTest {
     public static final String LOGIN_URL = "http://localhost:8080/api/auth/login";
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    TitleRepository titleRepository;
+    private TitleRepository titleRepository;
 
     private String getJWTToken() throws Exception {
        String email = "alexwoodyside@gmail.com";
@@ -131,6 +131,15 @@ public class TitleControllerTest {
                         get(TITLE_URL + "/")
                 )
                 .andExpect(status().isUnauthorized());
+    }
+
+    private void getAllTitlesWithInvalidJWTToken() throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/")
+                            .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI3ODkzMDI0LCJleHAiOjE2Mjc4OTM5MjQsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.AAf_MA1pNBUFzr6Wj0ERuYcu6AmYNttEst_t_eQgrKiRW9ZsD0c4moZQIce7sghAgEOs8TeBk4SAVvZ4aieeAQ")
+                )
+                .andExpect(status().isNotAcceptable());
     }
 
 
@@ -306,6 +315,15 @@ public class TitleControllerTest {
         createTitle("Title2");
         getAllTitleUnauthorized();
     }
+
+    @Test
+    public void whenGetAllTitlesWithIncorrectJWTToken_thenNoAccess() throws Exception {
+        createTitle("Title1");
+        createTitle("Title2");
+        getAllTitlesWithInvalidJWTToken();
+    }
+
+
 
     @Test
     public void whenDeleteTitleById_thenReturnNoTitle() throws Exception {
