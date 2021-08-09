@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,14 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql({"/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
+@Sql({"/delete_category.sql","/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
         "/insert_role.sql", "/insert_user.sql", "/insert_user_role.sql"})
-@TestPropertySource(locations = "classpath:application.properties")
 @ActiveProfiles(profiles = "test")
 public class TitleControllerTest {
 
-    public static final String TITLE_URL = "http://localhost:8080/api/user/titles";
-    public static final String LOGIN_URL = "http://localhost:8080/api/auth/login";
+    private static final String TITLE_URL = "http://localhost:8080/api/user/titles";
+    private static final String LOGIN_URL = "http://localhost:8080/api/auth/login";
 
     @Autowired
     private MockMvc mockMvc;
@@ -87,7 +85,7 @@ public class TitleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isNotEmpty())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -139,7 +137,7 @@ public class TitleControllerTest {
                         get(TITLE_URL + "/")
                             .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI3ODkzMDI0LCJleHAiOjE2Mjc4OTM5MjQsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.AAf_MA1pNBUFzr6Wj0ERuYcu6AmYNttEst_t_eQgrKiRW9ZsD0c4moZQIce7sghAgEOs8TeBk4SAVvZ4aieeAQ")
                 )
-                .andExpect(status().isNotAcceptable());
+                .andExpect(status().isUnauthorized());
     }
 
 
@@ -150,13 +148,13 @@ public class TitleControllerTest {
                                 .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                                     .contentType(MediaType.APPLICATION_JSON)
                                         .content("{\n" +
-                                "    \"name\": \"" + title + "\"\n" +
-                                "}")
+                                             "    \"name\": \"" + title + "\"\n" +
+                                                "}")
                 )
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isEmpty());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isNotEmpty());
 
 
     }
@@ -174,6 +172,32 @@ public class TitleControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("Title name should not be empty"));
     }
 
+    private ResultActions createTitleWithWithoutJWTToken(String title) throws Exception {
+        return mockMvc
+                .perform(
+                        post(TITLE_URL + "/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\n" +
+                                        "    \"name\": \"" + title + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private ResultActions createTitleWithWithInvalidJWTToken(String title) throws Exception {
+
+        return mockMvc
+                .perform(
+                        post(TITLE_URL + "/")
+                                .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI4NDk1MzY0LCJleHAiOjE2Mjg0OTYyNjQsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.ERheYQHTkPK9yGRMpsWaQ0oHdyxtfVVvHlDTUk7kK8JunZxmd9mxmu4XV-EmdBLrLwlq5SIFQ02ES2LC16ITlw")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
+                                        "    \"name\": \"" + title + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+
+    }
     private void deleteTitleById(Integer id, String name) throws Exception {
         System.out.println(id);
         mockMvc
@@ -287,6 +311,17 @@ public class TitleControllerTest {
     }
 
     @Test
+    public void whenCreateTitleWithoutJWTToken_thenReturnUnAuthorized() throws Exception {
+        createTitleWithWithoutJWTToken("Title1");
+    }
+
+    @Test
+    public void whenCreateTitleWithInvalidJWTToken_thenReturnUnAuthorized() throws Exception {
+        createTitleWithWithInvalidJWTToken("Title1");
+    }
+
+
+    @Test
     public void whenGetTitleById_thenReturnThisTitle() throws Exception {
         ResultActions actions = createTitle("Title1");
         Integer id = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
@@ -322,8 +357,6 @@ public class TitleControllerTest {
         createTitle("Title2");
         getAllTitlesWithInvalidJWTToken();
     }
-
-
 
     @Test
     public void whenDeleteTitleById_thenReturnNoTitle() throws Exception {
