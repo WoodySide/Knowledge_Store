@@ -53,4 +53,8 @@ public class Category extends AuditModel {
         this.id = id;
         this.name = name;
     }
+
+    public Category(String name) {
+        this.name = name;
+    }
 }
