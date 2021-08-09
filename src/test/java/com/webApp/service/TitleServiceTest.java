@@ -46,6 +46,15 @@ public class TitleServiceTest {
     }
 
     @Test
+    public void whenCreateTitle_thenReturnCreatedOne() {
+        Title toBeCreated = new Title(1L,"Title1");
+
+        titleService.saveTitle(toBeCreated);
+
+        assertThat(toBeCreated.getCategories()).hasSize(4);
+    }
+
+    @Test
     public void whenUpdateTitle_thenReturnUpdatedOne() {
 
         Title title = Title
