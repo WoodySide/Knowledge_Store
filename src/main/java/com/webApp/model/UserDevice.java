@@ -2,16 +2,14 @@ package com.webApp.model;
 
 import com.webApp.model.audit.AuditModel;
 import com.webApp.model.token.RefreshToken;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity(name = "USER_DEVICE")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDevice extends AuditModel {
