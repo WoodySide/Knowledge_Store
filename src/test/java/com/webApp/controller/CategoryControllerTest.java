@@ -21,8 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -97,13 +96,67 @@ public class CategoryControllerTest {
                 .getContentAsString();
     }
 
-    private ResultActions createCategoriesByTitle(String title) throws Exception {
+
+    private ResultActions createAdditionalCategory(Integer titleId, String category) throws Exception {
+       return mockMvc
+                .perform(
+                        post(TITLE_URL + "/" + titleId + "/" + "categories")
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"name\": \"" + category + "\"\n" +
+                                        "}")
+                )
+               .andExpect(status().isCreated())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(category))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.links").isEmpty());
+
+    }
+
+    private ResultActions createAdditionalCategoryWithEmptyBody(Integer titleId, String category) throws Exception {
+        return mockMvc
+                .perform(
+                        post(TITLE_URL + "/" + titleId + "/" + "categories")
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private ResultActions createAdditionalCategoryWithoutJWTToken(Integer titleId, String category) throws Exception {
+        return mockMvc
+                .perform(
+                        post(TITLE_URL + "/" + titleId + "/" + "categories")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"name\": \"" + category + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private ResultActions createAdditionalCategoryWithInvalidJWTToken(Integer titleId, String category) throws Exception {
+        return mockMvc
+                .perform(
+                        post(TITLE_URL + "/" + titleId + "/" + "categories")
+                                .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI4NTc3NDQ4LCJleHAiOjE2Mjg1NzgzNDgsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.0EC1ELw2Y2XKZo0ZP0Y5xBbtQNxi2x4vIr_6-3Lh1DN5LsmpYn5D5R-kYk3ehcWKt38HK5bAOpZ0w6cLQSlM1w")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" +
+                                        "    \"name\": \"" + category + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private ResultActions createDefaultCategoriesByTitle(String title) throws Exception {
         return mockMvc
                 .perform(
                         post(TITLE_URL + "/")
                             .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\n" +
+                                    .content("{\n" +
                                         "    \"name\": \"" + title + "\"\n" +
                                         "}")
                 )
@@ -113,7 +166,7 @@ public class CategoryControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isNotEmpty());
     }
 
-    private ResultActions createCategoriesByTitleWithNoJWTToken(String title) throws Exception {
+    private ResultActions createDefaultCategoriesByTitleWithNoJWTToken(String title) throws Exception {
         return mockMvc
                 .perform(
                         post(TITLE_URL + "/")
@@ -125,7 +178,7 @@ public class CategoryControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private ResultActions createCategoriesByTitleWithInvalidJWTToken(String title) throws Exception {
+    private ResultActions createDefaultCategoriesByTitleWithInvalidJWTToken(String title) throws Exception {
         return mockMvc
                 .perform(
                         post(TITLE_URL + "/")
@@ -138,7 +191,7 @@ public class CategoryControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private ResultActions createCategoriesByTitleWithEmptyBody() throws Exception {
+    private ResultActions createDefaultCategoriesByTitleWithEmptyBody() throws Exception {
         return mockMvc
                 .perform(
                         post(TITLE_URL + "/")
@@ -165,6 +218,24 @@ public class CategoryControllerTest {
                 .getContentAsString();
     }
 
+    private void getCategoryWithSymbolId(Integer titleId, String categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" +  titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private void getCategoryWithNonExistentId(Integer titleId, Integer categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" +  titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isNotFound());
+    }
+
     private void getCategoryWithoutJWTToken(Integer titleId, Integer categoryId) throws Exception {
         mockMvc
                 .perform(
@@ -182,6 +253,118 @@ public class CategoryControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    private void getAllCategories(Integer titleId) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + titleId + "/" + "categories")
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isOk());
+    }
+
+    private void getAllCategoriesWithoutJWTToken(Integer titleId) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + titleId + "/" + "categories")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void getAllCategoriesWithInvalidJWTToken(Integer titleId) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + titleId + "/" + "categories")
+                                .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI4NTc3NDQ4LCJleHAiOjE2Mjg1NzgzNDgsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.0EC1ELw2Y2XKZo0ZP0Y5xBbtQNxi2x4vIr_6-3Lh1DN5LsmpYn5D5R-kYk3ehcWKt38HK5bAOpZ0w6cLQSlM1w")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void updateCategory(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
+                                        "    \"name\": \"" + name + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
+    }
+
+    private void updateCategoryWithEmptyBody(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{}")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private void updateCategoryWithoutJWTToken(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                 .contentType(MediaType.APPLICATION_JSON)
+                                     .content("{\n" +
+                                        "    \"name\": \"" + name + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void updateCategoryWithInvalidJWTToken(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI4NTc3NDQ4LCJleHAiOjE2Mjg1NzgzNDgsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.0EC1ELw2Y2XKZo0ZP0Y5xBbtQNxi2x4vIr_6-3Lh1DN5LsmpYn5D5R-kYk3ehcWKt38HK5bAOpZ0w6cLQSlM1w")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
+                                        "    \"name\": \"" + name + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void updateCategoryWithCategorySymbolId(Integer titleId, String categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
+                                        "    \"name\": \"" + name + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private void updateCategoryByNonExistentId(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                        .content("{\n" +
+                                        "    \"name\": \"" + name + "\"\n" +
+                                        "}")
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    private void getCategoryAfterUpdate(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" +  titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
+    }
+
     @BeforeEach
     public void setup() {
         titleRepository.deleteAll();
@@ -190,12 +373,12 @@ public class CategoryControllerTest {
 
     @Test
     public void whenCreateCategory_thenReturnCreatedOnes() throws Exception {
-        createCategoriesByTitle("Title1");
+        createDefaultCategoriesByTitle("Title1");
     }
 
     @Test
     public void whenGetCategoryById_thenReturnCategories() throws Exception {
-        ResultActions actions = createCategoriesByTitle("Title1");
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
         Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
         getTitle(titleId, "Title1");
         Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
@@ -205,32 +388,147 @@ public class CategoryControllerTest {
 
     @Test
     public void whenGetCategoryByIdWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
-        ResultActions actions = createCategoriesByTitle("Title1");
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
         Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
         getTitle(titleId, "Title1");
         getCategoryWithoutJWTToken(titleId,1);
     }
 
     @Test
+    public void whenGetCategoryWithSymbolId_thenReturn400() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        getTitle(titleId, "Title1");
+        getCategoryWithSymbolId(titleId,"abs");
+    }
+
+    @Test
+    public void whenGetCategoryWithNonExistentId_thenReturn404() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        getTitle(titleId, "Title1");
+        getCategoryWithNonExistentId(titleId,10000);
+    }
+
+    @Test
     public void whenGetCategoryByIdWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
-        ResultActions actions = createCategoriesByTitle("Title1");
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
         Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
         getTitle(titleId, "Title1");
         getCategoryWithInvalidJWTToken(titleId,1);
     }
 
     @Test
+    public void whenCreateAdditionalCategory_thenReturnCreatedOne() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        createAdditionalCategory(titleId, "Category1");
+    }
+
+    @Test
+    public void whenCreateAdditionalCategoryWithEmptyBody_thenReturn400() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        createAdditionalCategoryWithEmptyBody(titleId, "Category1");
+    }
+
+    @Test
+    public void whenCreateAdditionalCategoryWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        createAdditionalCategoryWithoutJWTToken(titleId, "Category");
+    }
+
+    @Test
+    public void whenCreateAdditionalCategoryWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        createAdditionalCategoryWithInvalidJWTToken(titleId, "Category");
+    }
+
+    @Test
     public void whenCreateCategoriesWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
-        createCategoriesByTitleWithNoJWTToken("Title1");
+        createDefaultCategoriesByTitleWithNoJWTToken("Title1");
     }
 
     @Test
     public void whenCreateCategoriesWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
-        createCategoriesByTitleWithInvalidJWTToken("Title1");
+        createDefaultCategoriesByTitleWithInvalidJWTToken("Title1");
     }
 
     @Test
     public void whenCreateCategoriesWithEmptyBody_thenReturn400() throws Exception {
-        createCategoriesByTitleWithEmptyBody();
+        createDefaultCategoriesByTitleWithEmptyBody();
     }
+
+    @Test
+    public void whenGetAllCategories_thenReturnAllOfThem() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        getAllCategories(titleId);
+    }
+
+    @Test
+    public void whenGetAllCategoriesWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        getAllCategoriesWithoutJWTToken(titleId);
+    }
+
+    @Test
+    public void whenGetAllCategoriesWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        getAllCategoriesWithInvalidJWTToken(titleId);
+    }
+
+    @Test
+    public void whenUpdateCategory_thenReturnUpdatedOne() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        updateCategory(titleId,categoryId, "Category10");
+        getCategoryAfterUpdate(titleId,categoryId, "Category10");
+    }
+
+    @Test
+    public void whenUpdateCategoryWithEmptyBody_thenReturn400() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        updateCategoryWithEmptyBody(titleId,categoryId, "Category10");
+    }
+
+    @Test
+    public void whenUpdateCategoryWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        updateCategoryWithoutJWTToken(titleId,categoryId, "Category10");
+    }
+
+    @Test
+    public void whenUpdateCategoryWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        updateCategoryWithInvalidJWTToken(titleId,categoryId, "Category10");
+    }
+
+    @Test
+    public void whenUpdateCategoryWithCategorySymbolId_thenReturn400() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        updateCategoryWithCategorySymbolId(titleId,"abc", "Category10");
+    }
+
+    @Test
+    public void whenUpdateCategoryByNonExistentId_thenReturn404() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        updateCategoryByNonExistentId(titleId,10000, "Category10");
+    }
+
+
+
 }
