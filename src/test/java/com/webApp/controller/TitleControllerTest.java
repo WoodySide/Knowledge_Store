@@ -93,7 +93,8 @@ public class TitleControllerTest {
 
     private void updateTitle(Integer id, String name) throws Exception {
         mockMvc
-                .perform(put(TITLE_URL + "/" + id)
+                .perform(
+                        put(TITLE_URL + "/" + id)
                                         .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                                             .contentType(MediaType.APPLICATION_JSON)
                                                  .content("{\n" +
@@ -105,9 +106,10 @@ public class TitleControllerTest {
 
     private void updateTitleWithEmptyBody(Integer id) throws Exception {
         mockMvc
-                .perform(put(TITLE_URL + "/" + id)
-                                        .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                                        .contentType(MediaType.APPLICATION_JSON)
+                .perform(
+                        put(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                    .contentType(MediaType.APPLICATION_JSON)
                                         .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("Title name should not be empty"));
@@ -118,7 +120,7 @@ public class TitleControllerTest {
         mockMvc.
                 perform(
                         get(TITLE_URL + "/")
-                        .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                 )
                 .andExpect(status().isOk());
     }
@@ -239,7 +241,7 @@ public class TitleControllerTest {
         mockMvc
                 .perform(
                         get(TITLE_URL + "/" + id)
-                        .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                 )
                 .andExpect(status().isNotFound());
     }
@@ -248,7 +250,7 @@ public class TitleControllerTest {
         mockMvc
                 .perform(
                         get(TITLE_URL + "/" + id)
-                        .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
                 )
                 .andExpect(status().isBadRequest());
     }
