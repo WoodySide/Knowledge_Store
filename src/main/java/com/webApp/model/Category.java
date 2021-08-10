@@ -44,7 +44,7 @@ public class Category extends AuditModel {
     private Title title;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "category",
-             fetch = FetchType.LAZY, orphanRemoval = true)
+             fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonManagedReference
     private Set<Link> links;
