@@ -253,6 +253,16 @@ public class CategoryControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    private void getCategoryAfterUpdate(Integer titleId, Integer categoryId, String name) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" +  titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
+    }
+
     private void getAllCategories(Integer titleId) throws Exception {
         mockMvc
                 .perform(
@@ -355,15 +365,53 @@ public class CategoryControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    private void getCategoryAfterUpdate(Integer titleId, Integer categoryId, String name) throws Exception {
+    private void deleteCategory(Integer titleId, Integer categoryId) throws Exception {
         mockMvc
                 .perform(
-                        get(TITLE_URL + "/" +  titleId + "/" + "categories" + "/" + categoryId)
-                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                        delete(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+
                 )
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
+                .andExpect(status().isOk());
     }
+
+    private void deleteCategoryWithoutJWTToken(Integer titleId, Integer categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void deleteCategoryWithInvalidJWTToken(Integer titleId, Integer categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                            .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI4NTc3NDQ4LCJleHAiOjE2Mjg1NzgzNDgsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.0EC1ELw2Y2XKZo0ZP0Y5xBbtQNxi2x4vIr_6-3Lh1DN5LsmpYn5D5R-kYk3ehcWKt38HK5bAOpZ0w6cLQSlM1w")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void deleteCategoryWithSymbolId(Integer titleId, String categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private void deleteCategoryWithNonExistentId(Integer titleId, Integer categoryId) throws Exception {
+        mockMvc
+                .perform(
+                        delete(TITLE_URL + "/" + titleId + "/" + "categories" + "/" + categoryId)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+
+                )
+                .andExpect(status().isNotFound());
+    }
+
 
     @BeforeEach
     public void setup() {
@@ -529,6 +577,41 @@ public class CategoryControllerTest {
         updateCategoryByNonExistentId(titleId,10000, "Category10");
     }
 
+    @Test
+    public void whenDeleteCategory_thenReturn200() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        deleteCategory(titleId,categoryId);
+    }
 
+    @Test
+    public void whenDeleteCategoryWithoutJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        deleteCategoryWithoutJWTToken(titleId,categoryId);
+    }
 
+    @Test
+    public void whenDeleteCategoryWithInvalidJWTToken_thenReturnIsUnauthorized() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        Integer categoryId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.categories[0].id");
+        deleteCategoryWithInvalidJWTToken(titleId,categoryId);
+    }
+
+    @Test
+    public void whenDeleteCategoryWithCategorySymbolId_thenReturn400() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        deleteCategoryWithSymbolId(titleId,"abs");
+    }
+
+    @Test
+    public void whenDeleteCategoryByNonExistentId_thenReturn404() throws Exception {
+        ResultActions actions = createDefaultCategoriesByTitle("Title1");
+        Integer titleId = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
+        deleteCategoryWithNonExistentId(titleId,10000);
+    }
 }
