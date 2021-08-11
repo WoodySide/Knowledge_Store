@@ -91,6 +91,34 @@ public class TitleControllerTest {
                 .getContentAsString();
     }
 
+    private void getTitleAfterUpdate(Integer id, String name) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
+    }
+
+    private void getTitleWithNotExistentTitleId(Integer id) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    private void getTitleWithSymbolId(String id) throws Exception {
+        mockMvc
+                .perform(
+                        get(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isBadRequest());
+    }
+
     private void updateTitle(Integer id, String name) throws Exception {
         mockMvc
                 .perform(
@@ -114,6 +142,28 @@ public class TitleControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("Title name should not be empty"));
 
+    }
+
+    private void updateTitleBySymbolId(String id) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    private void updateTitleByNonExistentId(Integer id, String name) throws Exception {
+        mockMvc
+                .perform(
+                        put(TITLE_URL + "/" + id)
+                                .header(HttpHeaders.AUTHORIZATION, getJWTToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\n" + "\"name\": \"" + name + "\"\n" +
+                                        "}")
+
+                )
+                .andExpect(status().isNotFound());
     }
 
     private void getAllTitles() throws Exception {
@@ -157,8 +207,6 @@ public class TitleControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(title))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.categories").isNotEmpty());
-
-
     }
 
     private void createTitleWithEmptyBody() throws Exception {
@@ -200,8 +248,8 @@ public class TitleControllerTest {
                 .andExpect(status().isUnauthorized());
 
     }
-    private void deleteTitleById(Integer id, String name) throws Exception {
-        System.out.println(id);
+
+    private void deleteTitleById(Integer id) throws Exception {
         mockMvc
                 .perform(
                         delete(TITLE_URL + "/" + id)
@@ -227,33 +275,7 @@ public class TitleControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private void getTitleAfterUpdate(Integer id, String name) throws Exception {
-        mockMvc
-                .perform(
-                        get(TITLE_URL + "/" + id)
-                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                )
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(name));
-    }
 
-    private void getTitleWithNotExistentTitleId(Integer id) throws Exception {
-        mockMvc
-                .perform(
-                        get(TITLE_URL + "/" + id)
-                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                )
-                .andExpect(status().isNotFound());
-    }
-
-    private void getTitleWithSymbolId(String id) throws Exception {
-        mockMvc
-                .perform(
-                        get(TITLE_URL + "/" + id)
-                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                )
-                .andExpect(status().isBadRequest());
-    }
 
     private void deleteTitleByNonExistentId(Integer id) throws Exception {
         mockMvc
@@ -272,30 +294,6 @@ public class TitleControllerTest {
                 )
                 .andExpect(status().isBadRequest());
     }
-
-    private void updateTitleBySymbolId(String id) throws Exception {
-        mockMvc
-                .perform(
-                        put(TITLE_URL + "/" + id)
-                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                )
-                .andExpect(status().isBadRequest());
-    }
-
-    private void updateTitleByNonExistentId(Integer id, String name) throws Exception {
-        mockMvc
-                .perform(
-                        put(TITLE_URL + "/" + id)
-                            .header(HttpHeaders.AUTHORIZATION, getJWTToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                    .content("{\n" + "\"name\": \"" + name + "\"\n" +
-                                        "}")
-
-                )
-                .andExpect(status().isNotFound());
-    }
-
-
 
     @Before
     public void beforeTest() {
@@ -364,7 +362,7 @@ public class TitleControllerTest {
     public void whenDeleteTitleById_thenReturnNoTitle() throws Exception {
         ResultActions actions = createTitle("Title1");
         Integer id = JsonPath.read(actions.andReturn().getResponse().getContentAsString(), "$.id");
-        deleteTitleById(id, "Title1");
+        deleteTitleById(id);
     }
 
     @Test
