@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -97,6 +98,7 @@ public class LinkController {
                     @ApiResponse(responseCode = "400", description = "Link name can't be null"),
             })
     @PostMapping(path = "categories/{categoryId}/links")
+    @ResponseStatus(value = HttpStatus.CREATED)
     public Link createLink(@Parameter(description = "Category ID from which all links will be retrieved", required = true)
                            @PathVariable(value = "categoryId") Long categoryId,
                            @Parameter(description = "Link which will be saves as a new one")
