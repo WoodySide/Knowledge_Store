@@ -24,8 +24,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql({"/delete_password_reset_token.sql", "/delete_verification_token.sql", "/delete_titles.sql","/delete_refresh_token.sql","/delete_user_device.sql","/delete_user_role.sql",
-        "/insert_role.sql", "/insert_user.sql", "/insert_user_role.sql"})
+@Sql({"/test_sql_scripts/delete_password_reset_token.sql",
+        "/test_sql_scripts/delete_verification_token.sql",
+        "/test_sql_scripts/delete_titles.sql",
+        "/test_sql_scripts/delete_refresh_token.sql",
+        "/test_sql_scripts/delete_user_device.sql",
+        "/test_sql_scripts/delete_user_role.sql",
+        "/test_sql_scripts/insert_role.sql",
+        "/test_sql_scripts/insert_user.sql",
+        "/test_sql_scripts/insert_user_role.sql"})
 @ActiveProfiles(profiles = "test")
 public class AuthenticationControllerTest {
 
