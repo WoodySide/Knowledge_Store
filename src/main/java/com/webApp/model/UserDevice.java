@@ -11,6 +11,7 @@ import javax.persistence.*;
 @Setter
 @Builder
 @NoArgsConstructor
+@Data
 @AllArgsConstructor
 public class UserDevice extends AuditModel {
 

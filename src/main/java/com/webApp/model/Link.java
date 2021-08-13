@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 @Entity(name = "Link")
 @Table(name = "links")
 @NoArgsConstructor
+@Data
 @AllArgsConstructor
 @Getter
 @Setter

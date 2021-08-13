@@ -1,10 +1,7 @@
 package com.webApp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -17,6 +14,7 @@ import java.util.Set;
 @Entity(name = "ROLE")
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
