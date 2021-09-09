@@ -54,7 +54,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity getUserProfile(@CurrentUser CustomUserDetails currentUser) {
         log.info(currentUser.getEmail() + " has role: " + currentUser.getRoles());
-        return ResponseEntity.ok("Hello. This is about me");
+        return ResponseEntity.ok(currentUser);
     }
 
     /**
@@ -71,6 +71,15 @@ public class UserController {
         return ResponseEntity.ok("Hello. This is about admins");
     }
 
+    /**
+     * Returns all current registered users in the system for statistics. Requires Admin access
+     */
+    @GetMapping(path = "/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity getAllUsers() {
+        log.info("Inside secured resource with users");
+        return ResponseEntity.ok(userService.findAllUsers());
+    }
     /**
      * Updates the password of the current logged in user
      */
