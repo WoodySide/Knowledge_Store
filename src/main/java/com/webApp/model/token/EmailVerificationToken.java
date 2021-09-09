@@ -4,11 +4,13 @@ package com.webApp.model.token;
 import com.webApp.model.TokenStatus;
 import com.webApp.model.User;
 import com.webApp.model.audit.AuditModel;
+import lombok.Builder;
 
 import javax.persistence.*;
 import java.time.Instant;
 
 @Entity(name = "EMAIL_VERIFICATION_TOKEN")
+@Builder
 public class EmailVerificationToken extends AuditModel {
 
     @Id

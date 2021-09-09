@@ -14,7 +14,6 @@ import java.util.Set;
 @Entity(name = "ROLE")
 @Getter
 @Setter
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
@@ -39,5 +38,10 @@ public class Role {
 
     public Role(RoleName role) {
         this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return role.name();
     }
 }

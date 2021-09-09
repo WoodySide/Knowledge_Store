@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Setter
 @Builder
 @NoArgsConstructor
-@Data
 @AllArgsConstructor
 public class UserDevice extends AuditModel {
 
@@ -40,4 +39,7 @@ public class UserDevice extends AuditModel {
 
     @Column(name = "IS_REFRESH_ACTIVE")
     private Boolean isRefreshActive;
+
+
+
 }

@@ -16,7 +16,6 @@ import java.util.Set;
 @Entity(name = "User")
 @Table(name = "users")
 @NoArgsConstructor
-@Data
 @AllArgsConstructor
 @Getter
 @Setter
@@ -98,5 +97,7 @@ public class User extends AuditModel {
                 + password + '\'' + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", active="
                 + active + ", roles=" + roles + ", isEmailVerified=" + isEmailVerified + '}';
     }
+
+
 }
 

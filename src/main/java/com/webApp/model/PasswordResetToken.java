@@ -1,7 +1,6 @@
 package com.webApp.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
@@ -12,7 +11,6 @@ import java.time.Instant;
 @Table(name = "password_reset_token")
 @Entity(name = "PASSWORD_RESET_TOKEN")
 @AllArgsConstructor
-@Data
 @Getter
 @Setter
 public class PasswordResetToken {
@@ -34,7 +32,7 @@ public class PasswordResetToken {
     private User user;
 
 
-    public PasswordResetToken() {
+    public PasswordResetToken() {}
 
-    }
+
 }

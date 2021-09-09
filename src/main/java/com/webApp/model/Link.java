@@ -13,7 +13,6 @@ import javax.validation.constraints.Size;
 @Entity(name = "Link")
 @Table(name = "links")
 @NoArgsConstructor
-@Data
 @AllArgsConstructor
 @Getter
 @Setter
@@ -55,4 +54,5 @@ public class Link extends AuditModel {
     public Link(String linkName) {
         this.linkName = linkName;
     }
+
 }
