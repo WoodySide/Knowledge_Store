@@ -154,6 +154,45 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(username = "steve", roles = "ADMIN")
+    private void getAllUsers() throws Exception {
+        mockMvc
+                .perform(
+                        get(USER_URL + "/" + "users")
+                            .header(HttpHeaders.AUTHORIZATION, getJWTTokenForAdmin())
+                )
+                .andExpect(status().isOk());
+    }
+
+    @WithMockUser(username = "bobby", roles = "USER")
+    private void getAllUsersWithUserAccess() throws Exception {
+        mockMvc
+                .perform(
+                        get(USER_URL + "/" + "users")
+                                .header(HttpHeaders.AUTHORIZATION, getJWTTokenForUser())
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "steve", roles = "ADMIN")
+    private void getAllUsersWithInvalidJWTToken() throws Exception {
+        mockMvc
+                .perform(
+                        get(USER_URL + "/" + "users")
+                                .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjI3ODkzMDI0LCJleHAiOjE2Mjc4OTM5MjQsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIn0.AAf_MA1pNBUFzr6Wj0ERuYcu6AmYNttEst_t_eQgrKiRW9ZsD0c4moZQIce7sghAgEOs8TeBk4SAVvZ4aieeAQ")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+    @WithMockUser(username = "steve", roles = "ADMIN")
+    private void getAllUsersWithoutJWTToken() throws Exception {
+        mockMvc
+                .perform(
+                        get(USER_URL + "/" + "users")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+
     private void getAdminProfileWithIncorrectToken() throws Exception {
         mockMvc
                 .perform(
@@ -386,6 +425,25 @@ public class UserControllerTest {
         getUserProfile();
     }
 
+    @Test
+    public void whenGetAllUsers_thenReturn200() throws Exception {
+        getAllUsers();
+    }
+
+    @Test
+    public void whenGetAllUsersWithUserAccess_thenReturn403() throws Exception {
+        getAllUsersWithUserAccess();
+    }
+
+    @Test
+    public void whenGetAllUserWithInvalidJWTToken_thenReturnUnauthorized() throws Exception {
+        getAllUsersWithInvalidJWTToken();
+    }
+
+    @Test
+    public void whenGetAllUserWithoutJWTToken_thenReturnUnauthorized() throws Exception {
+        getAllUsersWithoutJWTToken();
+    }
 
     @Test
     public void whenGetUserProfileWithIncorrectJWTToken_thenNotAuthenticated() throws Exception {
